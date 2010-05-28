@@ -16,15 +16,13 @@ import org.chartsy.main.utils.StrokeGenerator;
  */
 public class IndicatorProperties implements Serializable {
 
-    private static final long serialVersionUID = 101L;
+    private static final long serialVersionUID = 2L;
 
     public static final String LABEL = "OnBalanceVolume";
-    public static boolean MARKER = false;
     public static Color COLOR = new Color(0xf57900);
     public static int STROKE_INDEX = 0;
 
     private String label = LABEL;
-    private boolean marker = MARKER;
     private Color color = COLOR;
     private int strokeIndex = STROKE_INDEX;
 
@@ -32,9 +30,6 @@ public class IndicatorProperties implements Serializable {
 
     public String getLabel() { return label; }
     public void setLabel(String s) { label = s; }
-
-    public boolean getMarker() { return marker; }
-    public void setMarker(boolean b) { marker = b; }
 
     public Color getColor() { return color; }
     public void setColor(Color c) { color = c; }

@@ -8,8 +8,8 @@ import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
@@ -43,22 +43,28 @@ public class GetStartedPanel extends JPanel implements Constants {
         leftLabel.setHorizontalAlignment(SwingConstants.CENTER);
         leftLabel.setVerticalAlignment(SwingConstants.CENTER);
         leftLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        leftLabel.addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e) {
+        leftLabel.setForeground(COLOR_LINK);
+        leftLabel.addMouseListener(new MouseAdapter()
+        {
+            public @Override void mouseClicked(MouseEvent e)
+            {
                 try { DesktopUtil.browse(BundleSupport.getURL(URL_TUTORIAL)); }
                 catch (Exception ex) {}
+                e.consume();
             }
-            public void mousePressed(MouseEvent e) {}
-            public void mouseReleased(MouseEvent e) {}
-            public void mouseEntered(MouseEvent e) {
+            public @Override void mouseEntered(MouseEvent e)
+            {
                 JLabel label = (JLabel) e.getSource();
                 label.setText("<html><u>Watch the Tutorial</u></html>");
                 StatusDisplayer.getDefault().setStatusText(BundleSupport.getURL(URL_TUTORIAL));
+                e.consume();
             }
-            public void mouseExited(MouseEvent e) {
+            public @Override void mouseExited(MouseEvent e)
+            {
                 JLabel label = (JLabel) e.getSource();
                 label.setText("<html>Watch the Tutorial</html>");
                 StatusDisplayer.getDefault().setStatusText("");
+                e.consume();
             }
         });
         leftPanel.add(leftLabel, BorderLayout.CENTER);

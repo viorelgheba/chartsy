@@ -3,13 +3,10 @@ package org.chartsy.main.managers;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Vector;
-import org.chartsy.main.chartsy.ChartFrame;
-import org.chartsy.main.chartsy.chart.AbstractAnnotation;
-import org.chartsy.main.chartsy.chart.Annotation;
+import org.chartsy.main.ChartFrame;
+import org.chartsy.main.chart.Annotation;
 import org.openide.util.Lookup;
 
 /**
@@ -18,65 +15,139 @@ import org.openide.util.Lookup;
  */
 public class AnnotationManager {
 
-    protected static AnnotationManager instance;
-    protected LinkedHashMap<String, AbstractAnnotation> annotations;
-    protected String newAnnotationName = "";
+    private static AnnotationManager instance;
+    private LinkedHashMap<String, Annotation> annotations;
+    private Annotation current;
 
-    public static AnnotationManager getDefault() {
-        if (instance == null) instance = new AnnotationManager();
+    public static AnnotationManager getDefault()
+    {
+        if (instance == null)
+            instance = new AnnotationManager();
         return instance;
     }
 
-    protected AnnotationManager() {}
-
-    public void initialize() {
-        annotations = new LinkedHashMap<String, AbstractAnnotation>();
-        Collection<? extends AbstractAnnotation> list = Lookup.getDefault().lookupAll(AbstractAnnotation.class);
-        for (AbstractAnnotation aa : list) {
-            addAnnotation(aa.getName(), aa);
-        }
-        sort();
+    private AnnotationManager()
+    {
+        annotations = new LinkedHashMap<String, Annotation>();
+        Collection<? extends Annotation> list = Lookup.getDefault().lookupAll(Annotation.class);
+        for (Annotation a : list)
+            annotations.put(a.getName(), a);
+        
+        annotations = sort(annotations);
     }
 
-    protected void sort() {
-        List<String> mapKeys = new ArrayList<String>(annotations.keySet());
+    private LinkedHashMap<String, Annotation> sort(LinkedHashMap<String, Annotation> oldMap)
+    {
+        List<String> mapKeys = new ArrayList<String>(oldMap.keySet());
         Collections.sort(mapKeys);
 
-        LinkedHashMap<String, AbstractAnnotation> someMap = new LinkedHashMap<String, AbstractAnnotation>();
+        LinkedHashMap<String, Annotation> newMap = new LinkedHashMap<String, Annotation>();
         for (int i = 0; i < mapKeys.size(); i++)
-            someMap.put(mapKeys.get(i), annotations.get(mapKeys.get(i)));
-        annotations = someMap;
+            newMap.put(mapKeys.get(i), oldMap.get(mapKeys.get(i)));
+        
+        return newMap;
     }
 
-    public String getNewAnnotationName() { return newAnnotationName; }
-    public void setNewAnnotationName(String s) { newAnnotationName = s; }
+    public Annotation getAnnotation(String key)
+    { return annotations.get(key); }
 
-    public void addAnnotation(String key, AbstractAnnotation value) { annotations.put(key, value); }
-    public void removeAnnotation(String key) { annotations.remove(key); }
-
-    public AbstractAnnotation getAbstractAnnotation(String key) {
-        return annotations.get(key);
+    public List<String> getAnnotations()
+    {
+        List<String> list = new ArrayList<String>(annotations.keySet());
+        Collections.sort(list);
+        return list;
     }
 
-    public Vector getAnnotations() {
-        Vector v = new Vector();
-        Iterator it = annotations.keySet().iterator();
-        while (it.hasNext()) v.add(it.next());
-        Collections.sort(v);
-        return v;
-    }
+    public void setNewAnnotation(Annotation a)
+    { current = a; }
 
-    public Annotation getNewAnnotation(ChartFrame cf) {
-        if (!newAnnotationName.equals("")) {
-            Object obj = annotations.get(newAnnotationName);
-            if (obj != null && obj instanceof AbstractAnnotation) return ((AbstractAnnotation) obj).newInstance(cf);
+    public boolean hasNew()
+    { return current != null; }
+
+    public Annotation getNewAnnotation(ChartFrame frame)
+    { return current.newInstance(frame); }
+
+    public void clearNewAnnotation()
+    { current = null; }
+
+    /*public void writeAnnotations(LinkedHashMap<String, Annotation> map)
+    {
+        try
+        {
+            OutputStream outFile = new FileOutputStream(path);
+            OutputStream outBuffer = new BufferedOutputStream(outFile);
+            ObjectOutput OUT = new ObjectOutputStream(outBuffer);
+
+            try
+            {
+                if (map == null)
+                {
+                    OUT.writeInt(0);
+                    return;
+                }
+
+                int size = map.size();
+                OUT.writeInt(size);
+
+                if (size > 0)
+                {
+                    ArrayList<String> keys = new ArrayList<String>(map.keySet());
+                    ArrayList<Annotation> values = new ArrayList<Annotation>(map.values());
+
+                    for (int i = 0; i < size; i++)
+                    {
+                        OUT.writeObject(keys.get(i));
+                        OUT.writeObject(values.get(i));
+                    }
+                }
+            }
+            finally
+            {
+                OUT.close();
+            }
         }
-        return null;
+        catch (IOException ex)
+        {
+            LOG.log(Level.SEVERE, "Cannot perform output.", ex);
+        }
     }
 
-    public void print() {
-        Iterator it = annotations.keySet().iterator();
-        while (it.hasNext()) LoggerManager.getDefault().log(it.next().toString());
-    }
+    public LinkedHashMap<String, Annotation> readAnnotations()
+    {
+        LinkedHashMap<String, Annotation> map = new LinkedHashMap<String, Annotation>();
+        try
+        {
+            InputStream inFile = new FileInputStream(path);
+            InputStream inBuffer = new BufferedInputStream(inFile);
+            ObjectInput IN = new ObjectInputStream(inBuffer);
+
+            try
+            {
+                int size = IN.readInt();
+                if (size > 0)
+                {
+                    for (int i = 0; i < size; i++)
+                    {
+                        String key = (String) IN.readObject();
+                        Annotation value = (Annotation) IN.readObject();
+                        map.put(key, value);
+                    }
+                }
+            }
+            finally
+            {
+                IN.close();
+            }
+        }
+        catch(ClassNotFoundException ex)
+        {
+            LOG.log(Level.SEVERE, "Cannot perform input. Class not found.", ex);
+        }
+        catch(IOException ex)
+        {
+            LOG.log(Level.SEVERE, "Cannot perform input.", ex);
+        }
+        return map;
+    }*/
 
 }

@@ -16,7 +16,7 @@ import org.chartsy.main.utils.StrokeGenerator;
  */
 public class IndicatorProperties implements Serializable {
 
-    private static final long serialVersionUID = 101L;
+    private static final long serialVersionUID = 2L;
 
     public static final int PERIOD = 18;
     public static final int STDPERIOD = 63;

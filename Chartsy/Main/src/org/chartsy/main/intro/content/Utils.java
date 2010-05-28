@@ -24,6 +24,7 @@ public class Utils {
         try {
             if (osName.startsWith("Max OS")) {
                 Class fileMgr = Class.forName("com.apple.eio.FileManager");
+                @SuppressWarnings({"unchecked"})
                 Method openURL = fileMgr.getDeclaredMethod("openURL", new Class[] {String.class});
                 openURL.invoke(null, new Object[] {url});
             } else if (osName.startsWith("Windows")) {

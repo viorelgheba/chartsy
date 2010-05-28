@@ -1,64 +1,68 @@
 package org.chartsy.main.managers;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.Vector;
-import org.chartsy.main.chartsy.chart.AbstractChart;
+import java.util.List;
+import org.chartsy.main.chart.Chart;
 import org.openide.util.Lookup;
 
 /**
  *
  * @author viorel.gheba
  */
-public class ChartManager {
+public class ChartManager
+{
 
-    protected static ChartManager instance;
-    protected LinkedHashMap<String, AbstractChart> charts;
+    private static ChartManager instance;
+    private LinkedHashMap<String, Chart> charts;
 
-    public static ChartManager getDefault() {
-        if (instance == null) instance = new ChartManager();
+    public static ChartManager getDefault()
+    {
+        if (instance == null)
+            instance = new ChartManager();
         return instance;
     }
 
-    protected ChartManager() {}
-
-    public void initialize() {
-        charts = new LinkedHashMap<String, AbstractChart>();
-        Collection<? extends AbstractChart> list = Lookup.getDefault().lookupAll(AbstractChart.class);
-        for (AbstractChart c : list) {
-            addChart(c.getName(), c);
-        }
+    private ChartManager()
+    {
+        charts = new LinkedHashMap<String, Chart>();
+        Collection<? extends Chart> list = Lookup.getDefault().lookupAll(Chart.class);
+        for (Chart c : list)
+            charts.put(c.getName(), c);
+        sort();
     }
 
-    public void addChart(String key, AbstractChart value) { charts.put(key, value); }
-    public void removeChart(String key) { charts.remove(key); }
+    private void sort()
+    {
+        List<String> mapKeys = new ArrayList<String>(charts.keySet());
+        Collections.sort(mapKeys);
 
-    public AbstractChart getChart(String key) {
-        Collection<? extends AbstractChart> list = Lookup.getDefault().lookupAll(AbstractChart.class);
-        for (AbstractChart c : list) {
-            if (c.getName().equals(key))
-                return c;
-        }
-        return null;
+        LinkedHashMap<String, Chart> someMap = new LinkedHashMap<String, Chart>();
+        for (int i = 0; i < mapKeys.size(); i++)
+            someMap.put(mapKeys.get(i), charts.get(mapKeys.get(i)));
+        charts = someMap;
     }
 
-    public Vector getCharts() {
-        Collection<? extends AbstractChart> list = Lookup.getDefault().lookupAll(AbstractChart.class);
-        Vector v = new Vector();
-
-        for (AbstractChart c : list) {
-            v.add(c.getName());
-        }
-        
-        Collections.sort(v);
-        return v;
+    public Chart getChart(String key)
+    {
+        return charts.get(key);
     }
 
-    public void print() {
-        Iterator it = charts.keySet().iterator();
-        while (it.hasNext()) System.out.println(it.next().toString());
+    public List<String> getCharts()
+    {
+        List<String> list = new ArrayList<String>(charts.keySet());
+        Collections.sort(list);
+        return list;
+    }
+
+    public List<String> getCharts(String current)
+    {
+        List<String> list = new ArrayList<String>(charts.keySet());
+        list.remove(current);
+        Collections.sort(list);
+        return list;
     }
 
 }

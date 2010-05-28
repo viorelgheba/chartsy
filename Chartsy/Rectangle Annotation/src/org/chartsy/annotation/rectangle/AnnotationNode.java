@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.lang.reflect.InvocationTargetException;
-import org.chartsy.main.managers.LoggerManager;
 import org.chartsy.main.utils.AlphaPropertyEditor;
 import org.chartsy.main.utils.StrokeGenerator;
 import org.chartsy.main.utils.StrokePropertyEditor;
@@ -25,7 +24,7 @@ import org.openide.util.lookup.Lookups;
  */
 public class AnnotationNode extends AbstractNode implements PropertyChangeListener, Externalizable {
     
-    private static final long serialVersionUID = 101L;
+    private static final long serialVersionUID = 2L;
 
     public AnnotationNode() {
         super(Children.LEAF);
@@ -88,7 +87,7 @@ public class AnnotationNode extends AbstractNode implements PropertyChangeListen
             insideVisibility.setName("Inside Visibility");
             set.put(insideVisibility);
         } catch (Exception ex) {
-            LoggerManager.getDefault().log(ex.getMessage(), ex);
+            ex.printStackTrace();
         }
 
         sheet.put(set);

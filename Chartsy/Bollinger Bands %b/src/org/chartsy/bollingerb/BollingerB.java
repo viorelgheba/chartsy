@@ -2,41 +2,58 @@ package org.chartsy.bollingerb;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.Stroke;
-import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.Vector;
-import org.chartsy.main.chartsy.ChartFrame;
-import org.chartsy.main.chartsy.DefaultPainter;
-import org.chartsy.main.chartsy.chart.Indicator;
-import org.chartsy.main.dataset.DataItem;
-import org.chartsy.main.dataset.Dataset;
+import java.util.List;
+import org.chartsy.main.ChartFrame;
+import org.chartsy.main.chart.Indicator;
+import org.chartsy.main.data.DataItem;
+import org.chartsy.main.data.Dataset;
 import org.chartsy.main.utils.CalcUtil;
+import org.chartsy.main.utils.DefaultPainter;
 import org.chartsy.main.utils.Range;
-import org.chartsy.main.utils.StrokeGenerator;
 import org.openide.nodes.AbstractNode;
 
 /**
  *
  * @author viorel.gheba
  */
-public class BollingerB extends Indicator implements Serializable {
+public class BollingerB
+        extends Indicator
+        implements Serializable
+{
 
-    private static final long serialVersionUID = 101L;
+    private static final long serialVersionUID = 2L;
     public static final String UPPER = "upper";
     public static final String LOWER = "lower";
     public static final String SVE_BB = "SVE_BB";
     public static final String D50 = "50";
-
     private IndicatorProperties properties;
 
-    public BollingerB() { super("SVE_BB%b", "Description", "SVE_BB%b"); properties = new IndicatorProperties(); }
+    public BollingerB()
+    {
+        super();
+        properties = new IndicatorProperties();
+    }
 
-    public String getLabel() { return properties.getLabel() + " (" + properties.getPeriod() + ")"; }
+    public String getName()
+    { return "SVE_BB%b"; }
 
-    public LinkedHashMap getHTML(ChartFrame cf, int i) {
+    public String getLabel() 
+    { return properties.getLabel() + " (" + properties.getPeriod() + ")"; }
+
+    public String getPaintedLabel(ChartFrame cf)
+    { return getLabel(); }
+
+    public Indicator newInstance() 
+    { return new BollingerB(); }
+
+    public LinkedHashMap getHTML(ChartFrame cf, int i)
+    {
         LinkedHashMap ht = new LinkedHashMap();
 
         DecimalFormat df = new DecimalFormat("#,##0.00");
@@ -55,110 +72,177 @@ public class BollingerB extends Indicator implements Serializable {
         return ht;
     }
 
-    public Range getRange(ChartFrame cf) {
-        Dataset dataset = visibleDataset(cf, SVE_BB);
+    public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
+    {
+        Dataset d = visibleDataset(cf, SVE_BB);
         Dataset upper = visibleDataset(cf, UPPER);
         Dataset lower = visibleDataset(cf, LOWER);
 
-        if (dataset != null) {
-            Range range = new Range(dataset.getMin(Dataset.CLOSE), dataset.getMax(Dataset.CLOSE));
-            if (upper != null) range = Range.combine(range, new Range(upper.getMin(Dataset.CLOSE), upper.getMax(Dataset.CLOSE)));
-            if (lower != null) range = Range.combine(range, new Range(lower.getMin(Dataset.CLOSE), lower.getMax(Dataset.CLOSE)));
-            return range;
+        if (d != null) 
+        {
+            if (maximized)
+            {
+                Range range = getRange(cf);
+
+                if (upper != null)
+                    DefaultPainter.line(g, cf, range, bounds, upper, properties.getStdColor(), properties.getStdStroke());
+
+                if (lower != null)
+                    DefaultPainter.line(g, cf, range, bounds, lower, properties.getStdColor(), properties.getStdStroke());
+
+                DefaultPainter.line(g, cf, range, bounds, d, properties.getColor(), properties.getStroke());
+            }
         }
-        return null;
     }
 
-    public void calculate() {
+    public void calculate()
+    {
         Dataset initial = getDataset();
         if (initial != null && !initial.isEmpty()) {
-            Dataset dataset = getSVE_BB(initial); addDataset(SVE_BB, dataset);
-            Dataset upper = getLowerUpperDataset(dataset, UPPER); addDataset(UPPER, upper);
-            Dataset lower = getLowerUpperDataset(dataset, LOWER); addDataset(LOWER, lower);
-            Dataset d50 = get50Dataset(dataset); addDataset(D50, d50);
+            Dataset d = getSVE_BB(initial);
+            addDataset(SVE_BB, d);
+
+            Dataset upper = getLowerUpperDataset(d, UPPER);
+            addDataset(UPPER, upper);
+
+            Dataset lower = getLowerUpperDataset(d, LOWER);
+            addDataset(LOWER, lower);
         }
     }
 
-    public void paint(Graphics2D g, ChartFrame cf) {
-        Dataset dataset = visibleDataset(cf, SVE_BB);
-        Dataset upper = visibleDataset(cf, UPPER);
-        Dataset lower = visibleDataset(cf, LOWER);
-        Dataset d50 = visibleDataset(cf, D50);
+    public boolean hasZeroLine()
+    { return false; }
 
-        if (dataset != null) {
-            Range range = getRange(cf);
-            Rectangle2D.Double bounds = getBounds();
+    public boolean getZeroLineVisibility()
+    { return false; }
 
-            if (d50 != null) DefaultPainter.line(g, cf, range, bounds, d50, Color.RED, StrokeGenerator.getStroke(1));
-            if (upper != null) DefaultPainter.line(g, cf, range, bounds, upper, Color.RED, StrokeGenerator.getStroke(1));
-            if (lower != null) DefaultPainter.line(g, cf, range, bounds, lower, Color.RED, StrokeGenerator.getStroke(1));
+    public Color getZeroLineColor()
+    { return null; }
 
-            DefaultPainter.line(g, cf, range, bounds, dataset, properties.getColor(), properties.getStroke());
-            DefaultPainter.label(g, cf, getLabel(), bounds);
+    public Stroke getZeroLineStroke()
+    { return null; }
+
+    public boolean hasDelimiters() 
+    { return true; }
+
+    public boolean getDelimitersVisibility() 
+    { return true; }
+
+    public double[] getDelimitersValues() 
+    { return new double[] {50.0d}; }
+
+    public Color getDelimitersColor() 
+    { return properties.getStdColor(); }
+
+    public Stroke getDelimitersStroke()
+    { return properties.getStdStroke(); }
+
+    public Color[] getColors()
+    { return new Color[] {properties.getColor()}; }
+
+    public double[] getValues(ChartFrame cf)
+    {
+        Dataset d = visibleDataset(cf, SVE_BB);
+
+        int i = d.getLastIndex();
+        if (d.getDataItem(i) != null)
+            return new double[] {d.getCloseAt(i)};
+        return new double[] {0};
+    }
+
+    public double[] getValues(ChartFrame cf, int i)
+    {
+        Dataset d = visibleDataset(cf, SVE_BB);
+
+        if (d.getDataItem(i) != null)
+            return new double[] {d.getCloseAt(i)};
+        return new double[] {0};
+    }
+
+    public boolean getMarkerVisibility()
+    { return properties.getMarker(); }
+
+    public AbstractNode getNode() 
+    { return new IndicatorNode(properties); }
+
+    @Override
+    public Double[] getPriceValues(ChartFrame cf)
+    {
+        List<Double> list = new ArrayList<Double>();
+        list.add(new Double(50));
+
+        Range range = getRange(cf);
+        int max = (int) range.getUpperBound();
+        if (max > 0)
+            max = max - max%10;
+        else
+        {
+            int i = Math.abs(max%10);
+            max = max - (5-i);
         }
+
+        int min = (int) Math.ceil(range.getLowerBound());
+        if (min > 0)
+        {
+            int i = min%10;
+            min = min + (i<5 ? 5-i : 10-i);
+        }
+        else
+        {
+            int i = Math.abs(min%10);
+            min = min + (i<5 ? i : i-5);
+        }
+
+        list.add(new Double((double)min));
+        list.add(new Double((double)max));
+        list.add(new Double((max+50)/2));
+        list.add(new Double((50/2) + (min/2)));
+
+        return list.toArray(new Double[list.size()]);
     }
 
-    public boolean hasZeroLine() { return false; }
-    public boolean getZeroLineVisibility() { return false; }
-    public Color getZeroLineColor() { return null; }
-    public Stroke getZeroLineStroke() { return null; }
-    public Color[] getColors() { return new Color[] {properties.getColor()}; }
-    public double[] getValues(ChartFrame cf) {
-        Dataset dataset = visibleDataset(cf, SVE_BB);
-        if (dataset != null)
-            return new double[] {dataset.getLastPriceValue(Dataset.CLOSE)};
-        return new double[] {};
-    }
-    public double[] getValues(ChartFrame cf, int i) {
-        Dataset dataset = visibleDataset(cf, SVE_BB);
-        if (dataset != null)
-            return new double[] {dataset.getPriceValue(i, Dataset.CLOSE)};
-        return new double[] {};
-    }
-    public boolean getMarkerVisibility() { return properties.getMarker(); }
+    private Dataset getHaC(Dataset dataset)
+    {
+        int count = dataset.getItemsCount();
+        Dataset HaC = Dataset.EMPTY(count);
 
-    public AbstractNode getNode() {
-        return new IndicatorNode(properties);
-    }
-
-    private Dataset getHaC(Dataset dataset) {
-        Vector<DataItem> list = new Vector<DataItem>();
-
-        double o = dataset.getOpenValue(0);
-        double c = dataset.getCloseValue(0);
-        double h = dataset.getHighValue(0);
-        double l = dataset.getLowValue(0);
+        double o = dataset.getOpenAt(0);
+        double c = dataset.getCloseAt(0);
+        double h = dataset.getHighAt(0);
+        double l = dataset.getLowAt(0);
         double prev = (o+c+h+l)/4;
-        list.add(new DataItem(dataset.getDate(0), 0, prev, 0, 0, 0, 0));
-        
-        for (int i = 1; i < dataset.getItemCount(); i++) {
-            o = dataset.getOpenValue(i-1);
-            c = dataset.getCloseValue(i-1);
-            h = dataset.getHighValue(i-1);
-            l = dataset.getLowValue(i-1);
+        HaC.setDataItem(0, new DataItem(dataset.getTimeAt(0), prev));
+
+        for (int i = 1; i < count; i++)
+        {
+            o = dataset.getOpenAt(i-1);
+            c = dataset.getCloseAt(i-1);
+            h = dataset.getHighAt(i-1);
+            l = dataset.getLowAt(i-1);
 
             double haOpen = ((o+c+h+l)/4 + prev)/2;
             prev = haOpen;
 
-            o = dataset.getOpenValue(i);
-            c = dataset.getCloseValue(i);
-            h = dataset.getHighValue(i);
-            l = dataset.getLowValue(i);
+            o = dataset.getOpenAt(i);
+            c = dataset.getCloseAt(i);
+            h = dataset.getHighAt(i);
+            l = dataset.getLowAt(i);
 
             double haClose = ((o+c+h+l)/4 + haOpen + Math.max(h, haOpen) + Math.min(l, haOpen))/4;
 
-            list.add(new DataItem(dataset.getDate(i), 0, haClose, 0, 0, 0, 0));
+            HaC.setDataItem(i, new DataItem(dataset.getTimeAt(i), haClose));
         }
 
-        DataItem[] items = list.toArray(new DataItem[list.size()]);
-        return new Dataset(items);
+        return HaC;
     }
 
-    private Dataset getSVE_BB(final Dataset initial) {
+    private Dataset getSVE_BB(final Dataset initial)
+    {
         int period = properties.getPeriod();
         int temaPeriod = properties.getTemaPeriod();
-        Vector<DataItem> items = new Vector<DataItem>();
+        int count = initial.getItemsCount();
 
+        Dataset sve = Dataset.EMPTY(count);
         Dataset haC = getHaC(initial);
         Dataset TMA1 = Dataset.TEMA(haC, temaPeriod);
         Dataset TMA2 = Dataset.TEMA(TMA1, temaPeriod);
@@ -166,50 +250,41 @@ public class BollingerB extends Indicator implements Serializable {
         Dataset MOV = Dataset.WMA(ZLHA, period);
 
         int j = 0;
-        for (j = 0; j < initial.getItemCount() && (MOV.getCloseValue(j)==0); j++)
-            items.add(new DataItem(initial.getDate(j), 0, 0, 0, 0, 0, 0));
+        for (j = 0; j < count && (MOV.getDataItem(j)==null); j++)
+            sve.setDataItem(j, null);
 
-        for (int i = j; i < initial.getItemCount(); i++) {
-            double mov = MOV.getCloseValue(i);
-            double stddev = CalcUtil.stdDev(ZLHA, Dataset.CLOSE, i, period);
-            double close = stddev == 0 ? 0 : ((ZLHA.getCloseValue(i) + 2*stddev - mov)/(4*stddev))*100;
-            items.add(new DataItem(initial.getDate(i), 0, close, 0, 0, 0, 0));
+        for (int i = j; i < count; i++)
+        {
+            double mov = MOV.getCloseAt(i);
+            double stddev = CalcUtil.stdDev(ZLHA, Dataset.CLOSE_PRICE, i, period);
+            double close = stddev == 0 ? 0 : ((ZLHA.getCloseAt(i) + 2*stddev - mov)/(4*stddev))*100;
+            sve.setDataItem(i, new DataItem(initial.getTimeAt(i), close));
         }
 
-        DataItem[] data = items.toArray(new DataItem[items.size()]);
-        return new Dataset(data);
+        return sve;
     }
 
-    private Dataset get50Dataset(final Dataset initial) {
-        Vector<DataItem> items = new Vector<DataItem>();
-
-        int j = 0;
-        for (j = 0; j < initial.getItemCount() && (initial.getCloseValue(j)==0); j++)
-            items.add(new DataItem(initial.getDate(j), 0, 0, 0, 0, 0, 0));
-
-        for (int i = j; i < initial.getItemCount(); i++)
-            items.add(new DataItem(initial.getDate(i), 0, 50, 0, 0, 0, 0));
-        
-        DataItem[] data = items.toArray(new DataItem[items.size()]);
-        return new Dataset(data);
-    }
-
-    private Dataset getLowerUpperDataset(final Dataset initial, final String type) {
+    private Dataset getLowerUpperDataset(final Dataset initial, final String type) 
+    {
+        int count = initial.getItemsCount();
         int stdPeriod = properties.getStdPeriod();
+
         double sgn = type.equals(LOWER) ? -1 : 1;
         double afw = type.equals(LOWER) ? properties.getStdLow() : properties.getStdHigh();
-        Vector<DataItem> items = new Vector<DataItem>();
+
+        Dataset d = Dataset.EMPTY(count);
 
         int j = 0;
-        for (j = 0; j < initial.getItemCount() && (initial.getCloseValue(j)==0); j++)
-            items.add(new DataItem(initial.getDate(j), 0, 0, 0, 0, 0, 0));
+        for (j = 0; j < count && (initial.getDataItem(j)==null); j++)
+            d.setDataItem(j, null);
 
-        for (int i = j; i < initial.getItemCount(); i++) {
+        for (int i = j; i < count; i++)
+        {
             double stddev = CalcUtil.stdDev(initial, Dataset.CLOSE, i, stdPeriod);
-            items.add(new DataItem(initial.getDate(i), 0, (50D + (sgn * stddev * afw)), 0, 0, 0, 0));
+            d.setDataItem(i, new DataItem(initial.getTimeAt(i), (50D + (sgn * stddev * afw))));
         }
-        DataItem[] data = items.toArray(new DataItem[items.size()]);
-        return new Dataset(data);
+
+        return d;
     }
 
 }

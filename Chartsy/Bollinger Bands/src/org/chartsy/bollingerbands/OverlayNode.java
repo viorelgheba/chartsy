@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.lang.reflect.InvocationTargetException;
-import org.chartsy.main.managers.LoggerManager;
 import org.chartsy.main.utils.AlphaPropertyEditor;
 import org.chartsy.main.utils.PricePropertyEditor;
 import org.chartsy.main.utils.StrokeGenerator;
@@ -194,7 +193,7 @@ public class OverlayNode extends AbstractNode implements PropertyChangeListener,
             insideVisibility.setName("Inside Visibility");
             set.put(insideVisibility);
         } catch (Exception ex) {
-            LoggerManager.getDefault().log(ex.getMessage(), ex);
+            ex.printStackTrace();
         }
 
         sheet.put(set);

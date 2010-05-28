@@ -7,6 +7,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.chartsy.main.managers.ProxyManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -37,7 +38,7 @@ public class RSSFeedParser {
         Feed feed = null;
 
         try {
-            HttpClient client = new HttpClient();
+            HttpClient client = ProxyManager.getDefault().getHttpClient();
             HttpMethod method = new GetMethod(url.toString());
 
             client.executeMethod(method);

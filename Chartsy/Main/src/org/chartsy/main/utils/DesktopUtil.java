@@ -93,6 +93,7 @@ public class DesktopUtil {
         if (desktopInstance == null) return false;
 
         try {
+            @SuppressWarnings({"unchecked"})
             final Method browseMethod = desktopClass.getDeclaredMethod("browse", URI.class);
             browseMethod.invoke(desktopInstance, new URI(url.toExternalForm()));
             return true;
@@ -136,6 +137,7 @@ public class DesktopUtil {
     private static void browseMac(final String url) throws IOException {
         try {
             final Class fileMgr = getAppleFileManagerClass();
+            @SuppressWarnings({"unchecked"})
             final Method openURL = fileMgr.getDeclaredMethod("openURL", String.class);
             openURL.invoke(null, url);
         } catch (Exception e) {
@@ -146,6 +148,7 @@ public class DesktopUtil {
     private static void browseMac(final URL url) throws IOException {
         try {
             final Class fileMgr = getAppleFileManagerClass();
+            @SuppressWarnings({"unchecked"})
             final Method openURL = fileMgr.getDeclaredMethod("openURL", String.class);
             openURL.invoke(null, url.toString());
         } catch (Exception e) {
@@ -162,6 +165,7 @@ public class DesktopUtil {
         if (desktopInstance == null) return false;
 
         try {
+            @SuppressWarnings({"unchecked"})
             final Method browseMethod = desktopClass.getDeclaredMethod("open", File.class);
             browseMethod.invoke(desktopInstance, file);
             return true;
@@ -176,7 +180,8 @@ public class DesktopUtil {
         Runtime.getRuntime().exec(new String[]{"rundll32", "shell32.dll,ShellExec_RunDLL", file.getAbsolutePath()});
     }
 
-    private static void openMac(final File file) throws IOException {
+    private @SuppressWarnings({"deprecation"}) static void openMac(final File file) throws IOException
+    {
         browseMac(file.getAbsoluteFile().toURL());
     }
 
@@ -199,11 +204,13 @@ public class DesktopUtil {
 
     private static Object getDesktopInstance(final Class desktopClass) {
         try {
+            @SuppressWarnings({"unchecked"})
             final Method isDesktopSupportedMethod = desktopClass.getDeclaredMethod("isDesktopSupported");
             final boolean isDesktopSupported = (Boolean) isDesktopSupportedMethod.invoke(null);
             
             if (!isDesktopSupported) { return null; }
-            
+
+            @SuppressWarnings({"unchecked"})
             final Method getDesktopMethod = desktopClass.getDeclaredMethod("getDesktop");
             return getDesktopMethod.invoke(null);
         } catch (Exception e) {

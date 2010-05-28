@@ -25,7 +25,7 @@ import org.openide.util.lookup.Lookups;
  */
 public class IndicatorNode extends AbstractNode implements PropertyChangeListener, Externalizable {
 
-    private static final long serialVersionUID = 101L;
+    private static final long serialVersionUID = 2L;
 
     public IndicatorNode() {
         super(Children.LEAF);
@@ -137,7 +137,7 @@ public class IndicatorNode extends AbstractNode implements PropertyChangeListene
             insideVisibility.setName("Inside Visibility");
             set.put(insideVisibility);
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
 
         sheet.put(set);

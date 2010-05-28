@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.lang.reflect.InvocationTargetException;
-import org.chartsy.main.managers.LoggerManager;
 import org.chartsy.main.utils.StrokeGenerator;
 import org.chartsy.main.utils.StrokePropertyEditor;
 import org.openide.nodes.AbstractNode;
@@ -25,7 +24,7 @@ import org.openide.util.lookup.Lookups;
  */
 public class IndicatorNode extends AbstractNode implements PropertyChangeListener, Externalizable {
 
-    private static final long serialVersionUID = 101L;
+    private static final long serialVersionUID = 2L;
 
     public IndicatorNode() {
         super(Children.LEAF);
@@ -159,7 +158,7 @@ public class IndicatorNode extends AbstractNode implements PropertyChangeListene
             stdStrokeIndex.setName("Standard Deviation Style");
             set.put(stdStrokeIndex);
         } catch (Exception e) {
-            LoggerManager.getDefault().log(e.getMessage(), e);
+            e.printStackTrace();
         }
 
         sheet.put(set);

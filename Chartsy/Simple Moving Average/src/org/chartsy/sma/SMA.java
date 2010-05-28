@@ -2,13 +2,14 @@ package org.chartsy.sma;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
-import org.chartsy.main.chartsy.ChartFrame;
-import org.chartsy.main.chartsy.DefaultPainter;
-import org.chartsy.main.chartsy.chart.Overlay;
-import org.chartsy.main.dataset.Dataset;
+import org.chartsy.main.ChartFrame;
+import org.chartsy.main.chart.Overlay;
+import org.chartsy.main.data.Dataset;
+import org.chartsy.main.utils.DefaultPainter;
 import org.chartsy.main.utils.Range;
 import org.openide.nodes.AbstractNode;
 
@@ -16,16 +17,27 @@ import org.openide.nodes.AbstractNode;
  *
  * @author viorel.gheba
  */
-public class SMA extends Overlay implements Serializable {
+public class SMA extends Overlay implements Serializable
+{
 
-    private static final long serialVersionUID = 101L;
+    private static final long serialVersionUID = 2L;
     public static final String SMA = "sma";
-
     private OverlayProperties properties;
 
-    public SMA() { super("SMA", "Description", "SMA"); properties = new OverlayProperties(); }
+    public SMA()
+    {
+        super();
+        properties = new OverlayProperties();
+    }
 
-    public String getLabel() { return properties.getLabel() + " (" + properties.getPrice() + ", " + properties.getPeriod() + ")"; }
+    public String getName() 
+    { return "SMA"; }
+
+    public String getLabel() 
+    { return properties.getLabel() + " (" + properties.getPrice() + ", " + properties.getPeriod() + ")"; }
+
+    public Overlay newInstance() 
+    { return new SMA(); }
 
     public LinkedHashMap getHTML(ChartFrame cf, int i) {
         LinkedHashMap ht = new LinkedHashMap();
@@ -45,50 +57,57 @@ public class SMA extends Overlay implements Serializable {
         return ht;
     }
 
-    public Range getRange(ChartFrame cf) {
-        String price = properties.getPrice();
+    public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
+    {
         Dataset sma = visibleDataset(cf, SMA);
-        if (sma != null) {
-            Range chartRange = cf.getChartRenderer().getChartRange();
-            Range range = Range.combine(chartRange, new Range(sma.getMinNotZero(price), sma.getMaxNotZero(price)));
-            return range;
+        if (sma != null)
+        {
+            Range range = cf.getSplitPanel().getChartPanel().getRange();
+            DefaultPainter.line(g, cf, range, bounds, sma, properties.getColor(), properties.getStroke(), Dataset.getPrice(properties.getPrice()));
         }
-        return null;
     }
 
-    public void calculate() {
+    public void calculate()
+    {
         Dataset initial = getDataset();
-        if (initial != null && !initial.isEmpty()) {
+        if (initial != null && !initial.isEmpty())
+        {
             int period = properties.getPeriod();
-            Dataset sma = initial.getSMA(period);
+            Dataset sma = Dataset.SMA(initial, period);
             addDataset(SMA, sma);
         }
     }
 
-    public void paint(Graphics2D g, ChartFrame cf) {
-        Dataset sma = visibleDataset(cf, SMA);
-        if (sma != null) DefaultPainter.line(g, cf, sma, properties.getColor(), properties.getStroke(), properties.getPrice()); // paint sma line
-    }
+    public Color[] getColors() 
+    { return new Color[] {properties.getColor()}; }
 
-    public Color[] getColors() { return new Color[] {properties.getColor()}; }
-    public double[] getValues(ChartFrame cf) {
+    public double[] getValues(ChartFrame cf)
+    {
         Dataset sma = visibleDataset(cf, SMA);
         if (sma != null) {
-            String price = properties.getPrice();
-            return new double[] {sma.getLastPriceValue(price)};
+            int price = Dataset.getPrice(properties.getPrice());
+            return new double[] {sma.getLastPrice(price)};
         }
         return new double[] {};
     }
-    public double[] getValues(ChartFrame cf, int i) {
+
+    public double[] getValues(ChartFrame cf, int i)
+    {
         Dataset sma = visibleDataset(cf, SMA);
         if (sma != null) {
             String price = properties.getPrice();
-            return new double[] {sma.getPriceValue(i, price)};
+            return new double[] {sma.getPriceAt(i, price)};
         }
         return new double[] {};
     }
-    public boolean getMarkerVisibility() { return properties.getMarker(); }
 
-    public AbstractNode getNode() { return new OverlayNode(properties); }
+    public boolean getMarkerVisibility() 
+    { return properties.getMarker(); }
+
+    public AbstractNode getNode() 
+    { return new OverlayNode(properties); }
+
+    public String getPrice()
+    { return properties.getPrice(); }
 
 }

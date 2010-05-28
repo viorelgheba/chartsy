@@ -49,7 +49,7 @@ public class ForumPanel extends JPanel implements Constants {
                 label = new JLabel("<html>" + feedMessage.getDescription() + "</html>");
                 label.setOpaque(false);
                 label.setFont(DESCRIPTION_FONT);
-                label.setForeground(COLOR_LINK);
+                label.setForeground(COLOR_TEXT);
                 panel.add(label, BorderLayout.CENTER);
                 main.add(panel, new GridBagConstraints(0, i, 1, 1, 1.0D, 0.0D, 18, 2, new Insets(0, 0, 7, 0), 0, 0));
                 i++;
@@ -64,22 +64,29 @@ public class ForumPanel extends JPanel implements Constants {
         label.setFont(BUTTON_FONT);
         label.setForeground(COLOR_LINK);
         label.setHorizontalTextPosition(SwingConstants.RIGHT);
-        label.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
+        label.addMouseListener(new MouseAdapter()
+        {
+            public @Override void mouseClicked(MouseEvent e)
+            {
                 try { DesktopUtil.browse(BundleSupport.getURL("AllTopics")); }
                 catch (Exception ex) {}
+                e.consume();
             }
-            public void mouseEntered(MouseEvent e) { 
+            public @Override void mouseEntered(MouseEvent e)
+            {
                 JLabel label = (JLabel) e.getSource();
                 String s = label.getText();
                 label.setText("<html><u>" + s.replace("<html>", "").replace("</html>", "") + "</u></html>");
                 StatusDisplayer.getDefault().setStatusText(BundleSupport.getURL("AllTopics"));
+                e.consume();
             }
-            public void mouseExited(MouseEvent e) {
+            public @Override void mouseExited(MouseEvent e)
+            {
                 JLabel label = (JLabel) e.getSource();
                 String s = label.getText();
                 label.setText(s.replace("<u>", "").replace("</u>", ""));
                 StatusDisplayer.getDefault().setStatusText("");
+                e.consume();
             }
         });
         panel.add(label, BorderLayout.EAST);

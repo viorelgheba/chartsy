@@ -49,7 +49,7 @@ public class WelcomePanel extends JPanel implements Constants {
                 panel.setOpaque(false);
                 label = new JLabel("Last Uploaded Plugin");
                 label.setOpaque(false);
-                label.setForeground(COLOR_BULLET);
+                label.setForeground(COLOR_TEXT);
                 label.setFont(GET_STARTED_FONT);
                 panel.add(label, new GridBagConstraints(1, 0, 1, 3, 0.0D, 0.0D, 17, 0, new Insets(0, 0, 0, 0), 0, 0));
                 panel.add(new JLabel(), new GridBagConstraints(2, 0, 1, 3, 1.0D, 0.0D, 17, 1, new Insets(0, 0, 0, 0), 0, 0));
@@ -59,7 +59,7 @@ public class WelcomePanel extends JPanel implements Constants {
                 panel.setOpaque(false);
                 label = new JLabel(feedMessage.getTitle());
                 label.setOpaque(false);
-                label.setForeground(COLOR_BULLET);
+                label.setForeground(COLOR_TEXT);
                 label.setFont(GET_STARTED_FONT);
                 panel.add(label, new GridBagConstraints(1, 0, 1, 3, 0.0D, 0.0D, 17, 0, new Insets(0, 0, 0, 0), 0, 0));
                 panel.add(new JLabel(), new GridBagConstraints(2, 0, 1, 3, 1.0D, 0.0D, 17, 1, new Insets(0, 0, 0, 0), 0, 0));
@@ -69,8 +69,7 @@ public class WelcomePanel extends JPanel implements Constants {
                 panel.setOpaque(false);
                 label = new JLabel("<html>" + feedMessage.getDescription() + "</html>");
                 label.setOpaque(false);
-                label.setForeground(COLOR_LINK);
-                //label.setFont(DESCRIPTION_FONT);
+                label.setForeground(COLOR_TEXT);
                 label.setFont(WELCOME_LABEL_FONT);
                 label.setPreferredSize(new Dimension(300, 150));
                 panel.add(label, new GridBagConstraints(1, 0, 1, 3, 0.0D, 0.0D, 17, 0, new Insets(0, 0, 0, 0), 0, 0));
@@ -81,7 +80,7 @@ public class WelcomePanel extends JPanel implements Constants {
                 panel.setOpaque(false);
                 label = new JLabel("Last Uploaded Plugin");
                 label.setOpaque(false);
-                label.setForeground(COLOR_BULLET);
+                label.setForeground(COLOR_TEXT);
                 label.setFont(GET_STARTED_FONT);
                 panel.add(label, new GridBagConstraints(1, 0, 1, 3, 0.0D, 0.0D, 17, 0, new Insets(0, 0, 0, 0), 0, 0));
                 panel.add(new JLabel(), new GridBagConstraints(2, 0, 1, 3, 1.0D, 0.0D, 17, 1, new Insets(0, 0, 0, 0), 0, 0));
@@ -91,7 +90,7 @@ public class WelcomePanel extends JPanel implements Constants {
                 panel.setOpaque(false);
                 label = new JLabel(" ");
                 label.setOpaque(false);
-                label.setForeground(COLOR_BULLET);
+                label.setForeground(COLOR_TEXT);
                 label.setFont(GET_STARTED_FONT);
                 panel.add(label, new GridBagConstraints(1, 0, 1, 3, 0.0D, 0.0D, 17, 0, new Insets(0, 0, 0, 0), 0, 0));
                 panel.add(new JLabel(), new GridBagConstraints(2, 0, 1, 3, 1.0D, 0.0D, 17, 1, new Insets(0, 0, 0, 0), 0, 0));
@@ -101,7 +100,7 @@ public class WelcomePanel extends JPanel implements Constants {
                 panel.setOpaque(false);
                 label = new JLabel("<html>There are no new plugins</html>");
                 label.setOpaque(false);
-                label.setForeground(COLOR_LINK);
+                label.setForeground(COLOR_TEXT);
                 //label.setFont(DESCRIPTION_FONT);
                 label.setFont(WELCOME_LABEL_FONT);
                 label.setPreferredSize(new Dimension(300, 150));
@@ -133,7 +132,7 @@ public class WelcomePanel extends JPanel implements Constants {
                 rpanel.setOpaque(false);
                 rlabel = new JLabel("Last Forum Topics");
                 rlabel.setOpaque(false);
-                rlabel.setForeground(COLOR_BULLET);
+                rlabel.setForeground(COLOR_TEXT);
                 rlabel.setFont(GET_STARTED_FONT);
                 rpanel.add(rlabel, new GridBagConstraints(1, 0, 1, 3, 0.0D, 0.0D, 17, 0, new Insets(0, 0, 0, 0), 0, 0));
                 rpanel.add(new JLabel(), new GridBagConstraints(2, 0, 1, 3, 1.0D, 0.0D, 17, 1, new Insets(0, 0, 0, 0), 0, 0));
@@ -143,7 +142,7 @@ public class WelcomePanel extends JPanel implements Constants {
                 rpanel.setOpaque(false);
                 rlabel = new JLabel("Announcements");
                 rlabel.setOpaque(false);
-                rlabel.setForeground(COLOR_BULLET);
+                rlabel.setForeground(COLOR_TEXT);
                 rlabel.setFont(GET_STARTED_FONT);
                 rpanel.add(rlabel, new GridBagConstraints(1, 0, 1, 3, 0.0D, 0.0D, 17, 0, new Insets(0, 0, 0, 0), 0, 0));
                 rpanel.add(new JLabel(), new GridBagConstraints(2, 0, 1, 3, 1.0D, 0.0D, 17, 1, new Insets(0, 0, 0, 0), 0, 0));
@@ -178,7 +177,8 @@ public class WelcomePanel extends JPanel implements Constants {
         add(rightPanel, BorderLayout.EAST);
     }
 
-    public void paint(Graphics g) {
+    public void paint(Graphics g)
+    {
         Graphics2D g2 = (Graphics2D)g;
 
         g2.setColor(COLOR_TAB_CONTENT_BACKGROUND);

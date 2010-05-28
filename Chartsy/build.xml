@@ -42,8 +42,8 @@
         <propertyfile
             file="${basedir}/branding/modules/org-netbeans-core-windows.jar/org/netbeans/core/windows/view/ui/Bundle.properties"
             comment="Updated by build script">
-            <entry key="CTL_MainWindow_Title" value="${app.title}"/>
-            <entry key="CTL_MainWindow_Title_No_Project" value="${app.title}"/>
+            <entry key="CTL_MainWindow_Title" value="${app.title} ${app.version}"/>
+            <entry key="CTL_MainWindow_Title_No_Project" value="${app.title} ${app.version}"/>
         </propertyfile>
 
         <propertyfile

@@ -1,38 +1,64 @@
 package org.chartsy.ohlc;
 
 import java.awt.Graphics2D;
-import java.awt.geom.Line2D;
-import java.awt.geom.Point2D;
+import java.awt.Rectangle;
 import java.io.Serializable;
-import org.chartsy.main.chartsy.ChartFrame;
-import org.chartsy.main.chartsy.chart.AbstractChart;
-import org.chartsy.main.dataset.Dataset;
+import org.chartsy.main.ChartFrame;
+import org.chartsy.main.ChartProperties;
+import org.chartsy.main.chart.Chart;
+import org.chartsy.main.data.ChartData;
+import org.chartsy.main.data.Dataset;
+import org.chartsy.main.utils.CoordCalc;
+import org.chartsy.main.utils.Range;
 
 /**
  *
  * @author viorel.gheba
  */
-public class OHLC extends AbstractChart implements Serializable {
+public class OHLC 
+        extends Chart
+        implements Serializable
+{
 
-    private static final long serialVersionUID = 101L;
+    private static final long serialVersionUID = 2L;
 
-    public OHLC() { super("OHLC", "Description"); }
+    public OHLC()
+    {}
 
-    public void paint(Graphics2D g, ChartFrame cf) {
-        Dataset dataset = cf.getChartRenderer().getVisibleDataset();
-        for(int i = 0; i < dataset.getItemCount(); i++) {
-            double open = dataset.getOpenValue(i);
-            double close = dataset.getCloseValue(i);
-            double high = dataset.getHighValue(i);
-            double low = dataset.getLowValue(i);
-            g.setPaint(open > close ? cf.getChartProperties().getBarDownColor() : cf.getChartProperties().getBarUpColor());
-            Point2D.Double pHigh = cf.getChartRenderer().valueToJava2D(i, high);
-            Point2D.Double pLow = cf.getChartRenderer().valueToJava2D(i, low);
-            Point2D.Double pOpen = cf.getChartRenderer().valueToJava2D(i, open);
-            Point2D.Double pClose = cf.getChartRenderer().valueToJava2D(i, close);
-            g.draw(new Line2D.Double(pHigh, pLow));
-            g.draw(new Line2D.Double(pOpen, new Point2D.Double(pOpen.getX() - cf.getChartProperties().getBarWidth() / 2, pOpen.getY())));
-            g.draw(new Line2D.Double(pClose, new Point2D.Double(pClose.getX() + cf.getChartProperties().getBarWidth() / 2, pClose.getY())));
+    public String getName() 
+    { return "OHLC Bars"; }
+
+    public void paint(Graphics2D g, ChartFrame cf)
+    {
+        ChartData cd = cf.getChartData();
+        ChartProperties cp = cf.getChartProperties();
+        Rectangle rect = cf.getSplitPanel().getChartPanel().getBounds();
+        rect.grow(-2, -2);
+        Range range = cf.getSplitPanel().getChartPanel().getRange();
+
+        if (!cd.isVisibleNull())
+        {
+            Dataset dataset = cd.getVisible();
+            for(int i = 0; i < dataset.getItemsCount(); i++)
+            {
+                double open = dataset.getOpenAt(i);
+                double close = dataset.getCloseAt(i);
+                double high = dataset.getHighAt(i);
+                double low = dataset.getLowAt(i);
+
+                double x = cd.getX(i, rect);
+                double yOpen = cd.getY(open, rect, range);
+                double yClose = cd.getY(close, rect, range);
+                double yHigh = cd.getY(high, rect, range);
+                double yLow = cd.getY(low, rect, range);
+
+                double candleWidth = cp.getBarWidth();
+
+                g.setPaint(open > close ? cp.getBarDownColor() : cp.getBarUpColor());
+                g.draw(CoordCalc.line(x, yLow, x, yHigh));
+                g.draw(CoordCalc.line(x, yOpen, x - candleWidth/2, yOpen));
+                g.draw(CoordCalc.line(x, yClose, x + candleWidth/2, yClose));
+            }
         }
     }
 

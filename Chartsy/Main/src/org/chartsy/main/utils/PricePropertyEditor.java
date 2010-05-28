@@ -7,7 +7,7 @@ import java.beans.PropertyEditorSupport;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
-import org.chartsy.main.dataset.Dataset;
+import org.chartsy.main.data.Dataset;
 import org.openide.explorer.propertysheet.ExPropertyEditor;
 import org.openide.explorer.propertysheet.InplaceEditor;
 import org.openide.explorer.propertysheet.PropertyEnv;

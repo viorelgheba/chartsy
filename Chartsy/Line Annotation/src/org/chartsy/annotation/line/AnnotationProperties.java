@@ -16,13 +16,23 @@ import org.chartsy.main.utils.StrokeGenerator;
  */
 public class AnnotationProperties implements Serializable {
 
-    private static final long serialVersionUID = 101L;
+    private static final long serialVersionUID = 2L;
 
     public static final Color COLOR = Color.RED;
     public static final int STROKE_INDEX = 0;
 
     private Color color = COLOR;
     private int strokeIndex = STROKE_INDEX;
+
+    public AnnotationProperties() {}
+
+    public Color getColor() { return color; }
+    public void setColor(Color c) { color = c; }
+
+    public int getStrokeIndex() { return strokeIndex; }
+    public void setStrokeIndex(int i) { strokeIndex = i; }
+    public Stroke getStroke() { return StrokeGenerator.getStroke(strokeIndex); }
+    public void setStroke(Stroke s) { strokeIndex = StrokeGenerator.getStrokeIndex(s); }
 
     private List listeners = Collections.synchronizedList(new LinkedList());
 
@@ -40,15 +50,5 @@ public class AnnotationProperties implements Serializable {
             pcls[i].propertyChange(new PropertyChangeEvent(this, propertyName, old, nue));
         }
     }
-
-    public AnnotationProperties() {}
-
-    public Color getColor() { return color; }
-    public void setColor(Color c) { color = c; }
-
-    public int getStrokeIndex() { return strokeIndex; }
-    public void setStrokeIndex(int i) { strokeIndex = i; }
-    public Stroke getStroke() { return StrokeGenerator.getStroke(strokeIndex); }
-    public void setStroke(Stroke s) { strokeIndex = StrokeGenerator.getStrokeIndex(s); }
 
 }

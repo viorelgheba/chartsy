@@ -25,6 +25,7 @@ import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.chartsy.main.intro.content.BundleSupport;
 import org.chartsy.main.intro.content.Constants;
+import org.chartsy.main.managers.ProxyManager;
 import org.chartsy.main.utils.DesktopUtil;
 import org.openide.awt.StatusDisplayer;
 
@@ -102,7 +103,7 @@ public class BottomBanner extends JPanel implements Constants, MouseListener, Ac
     public void actionPerformed(ActionEvent e) {
         try {
             bottomLink.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            HttpClient client = new HttpClient();
+            HttpClient client = ProxyManager.getDefault().getHttpClient();
             Cookie cookie = new Cookie(cookieDomain, cookieName, cookieValue, cookiePath, cookieExpires, cookieSecure);
             client.getState().addCookie(cookie);
             HttpMethod method = new GetMethod(url.toString());
@@ -111,7 +112,7 @@ public class BottomBanner extends JPanel implements Constants, MouseListener, Ac
 
             try {
                 String uri = method.getURI().getHost() + (method.getURI().getPath().equals("/") ? "" : method.getURI().getPath());
-                uri = (uri.startsWith("htpp://")) ? uri : "http://" + uri;
+                uri = (uri.startsWith("http://")) ? uri : "http://" + uri;
                 DesktopUtil.browse(uri);
             } catch (Exception exc) { exc.printStackTrace(); }
             
@@ -125,7 +126,7 @@ public class BottomBanner extends JPanel implements Constants, MouseListener, Ac
 
     public Image getImageFromURL(String urlString) {
         try {
-            HttpClient client = new HttpClient();
+            HttpClient client = ProxyManager.getDefault().getHttpClient();
             HttpMethod method = new GetMethod(urlString);
             client.executeMethod(method);
 

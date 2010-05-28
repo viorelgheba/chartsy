@@ -2,18 +2,18 @@ package org.chartsy.volume;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.Stroke;
-import java.awt.font.LineMetrics;
-import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.Vector;
-import org.chartsy.main.chartsy.ChartFrame;
-import org.chartsy.main.chartsy.DefaultPainter;
-import org.chartsy.main.chartsy.chart.Indicator;
-import org.chartsy.main.dataset.DataItem;
-import org.chartsy.main.dataset.Dataset;
+import java.util.List;
+import org.chartsy.main.ChartFrame;
+import org.chartsy.main.chart.Indicator;
+import org.chartsy.main.data.DataItem;
+import org.chartsy.main.data.Dataset;
+import org.chartsy.main.utils.DefaultPainter;
 import org.chartsy.main.utils.Range;
 import org.openide.nodes.AbstractNode;
 
@@ -21,20 +21,42 @@ import org.openide.nodes.AbstractNode;
  *
  * @author viorel.gheba
  */
-public class Volume extends Indicator implements Serializable {
+public class Volume 
+        extends Indicator
+        implements Serializable
+{
 
-    private static final long serialVersionUID = 101L;
+    private static final long serialVersionUID = 2L;
     public static final String VOLUME = "volume";
+    private IndicatorProperties properties;
 
-    private IndicatorProperties properties = new IndicatorProperties();
+    public Volume()
+    {
+        super();
+        properties = new IndicatorProperties();
+    }
 
-    public Volume() { super("Volume", "Description", "Volume"); }
+    public String getName()
+    { return "Volume"; }
 
-    public String getLabel() { return properties.getLabel(); }
+    public String getLabel()
+    { return properties.getLabel(); }
 
-    public LinkedHashMap getHTML(ChartFrame cf, int i) {
+    public String getPaintedLabel(ChartFrame cf)
+    {
+        DecimalFormat df = new DecimalFormat("###,###");
+        String factor = df.format((int) getVolumeFactor(cf));
+        return getLabel() + " x " + factor;
+    }
+
+    public Indicator newInstance()
+    { return new Volume(); }
+
+    public LinkedHashMap getHTML(ChartFrame cf, int i)
+    {
         LinkedHashMap ht = new LinkedHashMap();
 
+        Dataset d = visibleDataset(cf, VOLUME);
         DecimalFormat df = new DecimalFormat();
         df.applyPattern("###,###");
         String factor = df.format((int) getVolumeFactor(cf));
@@ -42,75 +64,125 @@ public class Volume extends Indicator implements Serializable {
         double[] values = getValues(cf, i);
 
         ht.put(getLabel() + " x " + factor, " ");
-        if (values.length > 0) {
+        if (values.length > 0)
+        {
             Color[] colors = getColors();
-            for (int j = 0; j < values.length; j++) {
+            for (int j = 0; j < values.length; j++)
+            {
                 ht.put(getFontHTML(colors[j], "Volume:"),
                         getFontHTML(colors[j], df.format(values[j])));
             }
         }
-        
+
         return ht;
     }
 
-    public Range getRange(ChartFrame cf) {
-        Dataset volume = visibleDataset(cf, VOLUME);
-        Range range = new Range(0, volume.getVolumeMax());
+    @Override
+    public Range getRange(ChartFrame cf)
+    {
+        Range range = super.getRange(cf);
+        range = new Range(0, range.getUpperBound());
         return range;
     }
 
-    public void calculate() {
-        Dataset initial = getDataset();
-        if (initial != null && !initial.isEmpty()) {
-            Range range = new Range(0, initial.getVolumeMax());
-            double factor = Math.pow(10, String.valueOf(Math.round(range.getUpperBound())).length() - 2);
-            Vector<DataItem> items = new Vector<DataItem>();
-            for (int i = 0; i < initial.getItemCount(); i++) {
-                DataItem item = new DataItem(initial.getDate(i), 0, 0, 0, 0, getVolume(initial.getVolumeValue(i), factor), 0);
-                items.add(item);
+    public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds) {
+        Dataset d = visibleDataset(cf, VOLUME);
+        if (d != null) {
+            if (maximized)
+            {
+                Range range = getRange(cf);
+                
+                DefaultPainter.bar(g, cf, range, bounds, d, properties.getColor());
             }
-            DataItem[] data = items.toArray(new DataItem[items.size()]);
-            Dataset dataset = new Dataset(data);
-            addDataset(VOLUME, dataset);
         }
     }
 
-    public void paint(Graphics2D g, ChartFrame cf) {
-        Dataset volume = visibleDataset(cf, VOLUME);
-        if (volume != null) {
-            Range range = getRange(cf);
-            Rectangle2D.Double bounds = getBounds();
-
-            DefaultPainter.bar(g, cf, range, bounds, volume, properties.getColor(), Dataset.VOLUME); // paint volume bars
-
-            DecimalFormat df = new DecimalFormat("###,###");
-            String factor = df.format((int) getVolumeFactor(cf));
-            DefaultPainter.label(g, cf, getLabel() + " x " + factor, bounds); // paint label
+    public void calculate()
+    {
+        Dataset initial = getDataset();
+        if (initial != null && !initial.isEmpty())
+        {
+            Range range = new Range(0, initial.getMax(Dataset.VOLUME_PRICE));
+            double factor = Math.pow(10, String.valueOf(Math.round(range.getUpperBound())).length() - 2);
+            int count = initial.getItemsCount();
+            Dataset d = Dataset.EMPTY(count);
+            for (int i = 0; i < count; i++)
+            {
+                d.setDataItem(i, new DataItem(initial.getTimeAt(i), initial.getVolumeAt(i) / factor));
+            }
+            addDataset(VOLUME, d);
         }
     }
-    
-    private double getVolume(double volume, double factor) { return volume / factor; }
-    private double getVolumeFactor(ChartFrame cf) { return Math.pow(10, String.valueOf(Math.round(cf.getChartRenderer().getVisibleDataset().getVolumeMax())).length() - 1); }
 
-    public boolean hasZeroLine() { return true; }
-    public boolean getZeroLineVisibility() { return properties.getZeroLineVisibility(); }
-    public Color getZeroLineColor() { return properties.getZeroLineColor(); }
-    public Stroke getZeroLineStroke() { return properties.getZeroLineStroke(); }
-    public Color[] getColors() { return new Color[] {properties.getColor()}; }
-    public double[] getValues(ChartFrame cf) {
-        Dataset volume = visibleDataset(cf, VOLUME);
-        if (volume != null) return new double[] {volume.getLastPriceValue(Dataset.VOLUME)};
+    public boolean hasZeroLine()
+    { return true; }
+
+    public boolean getZeroLineVisibility()
+    { return properties.getZeroLineVisibility(); }
+
+    public Color getZeroLineColor()
+    { return properties.getZeroLineColor(); }
+
+    public Stroke getZeroLineStroke()
+    { return properties.getZeroLineStroke(); }
+
+    public boolean hasDelimiters()
+    { return false; }
+
+    public boolean getDelimitersVisibility()
+    { return false; }
+
+    public double[] getDelimitersValues()
+    { return new double[] {}; }
+
+    public Color getDelimitersColor()
+    { return null; }
+
+    public Stroke getDelimitersStroke()
+    { return null; }
+
+    public Color[] getColors()
+    { return new Color[] {properties.getColor()}; }
+
+    public double[] getValues(ChartFrame cf)
+    {
+        Dataset d = visibleDataset(cf, VOLUME);
+        if (d != null)
+            return new double[] {d.getLastClose()};
         return new double[] {};
     }
-    public double[] getValues(ChartFrame cf, int i) {
-        Dataset volume = visibleDataset(cf, VOLUME);
-        if (volume != null) return new double[] {volume.getPriceValue(i, Dataset.VOLUME)};
+
+    public double[] getValues(ChartFrame cf, int i)
+    {
+        Dataset d = visibleDataset(cf, VOLUME);
+        if (d != null)
+            return new double[] {d.getCloseAt(i)};
         return new double[] {};
     }
-    public boolean getMarkerVisibility() { return properties.getMarker(); }
 
-    public AbstractNode getNode() {
-        return new IndicatorNode(properties);
+    public boolean getMarkerVisibility()
+    { return properties.getMarker(); }
+
+    public AbstractNode getNode()
+    { return new IndicatorNode(properties); }
+
+    @Override
+    public Double[] getPriceValues(ChartFrame cf)
+    {
+        List<Double> list = new ArrayList<Double>();
+
+        Range range = getRange(cf);
+        int max = (int) range.getUpperBound();
+
+        list.add(new Double((double)max));
+        list.add(new Double((double)max/4));
+        list.add(new Double((double)max/2));
+        list.add(new Double((double)(3*max)/4));
+
+        return list.toArray(new Double[list.size()]);
     }
+
+    private double getVolumeFactor(ChartFrame cf)
+    { return Math.pow(10, String.valueOf(Math.round(cf.getChartData().getVisible().getMax(Dataset.VOLUME_PRICE))).length() - 1); }
 
 }

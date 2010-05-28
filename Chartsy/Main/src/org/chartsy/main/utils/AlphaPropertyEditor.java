@@ -22,16 +22,6 @@ public class AlphaPropertyEditor extends PropertyEditorSupport implements ExProp
 
     public AlphaPropertyEditor() {}
 
-    /*public String getAsText() {
-        int i = (Integer) getValue();
-        return String.valueOf(i);
-    }
-    public void setAsText(String s) {
-        try {
-            int i = Integer.parseInt(s);
-            setValue(i);
-        } catch (Exception e) {}
-    }*/
     public void attachEnv(PropertyEnv env) { env.registerInplaceEditorFactory(this); }
     public InplaceEditor getInplaceEditor() {
         if (ed == null) ed = new Inplace();

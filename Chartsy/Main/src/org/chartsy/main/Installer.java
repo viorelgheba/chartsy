@@ -5,11 +5,19 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyEditorManager;
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import org.chartsy.main.intro.WelcomeTopComponent;
-import org.chartsy.main.managers.LoggerManager;
+import org.chartsy.main.managers.AnnotationManager;
+import org.chartsy.main.managers.ChartManager;
+import org.chartsy.main.managers.DataProviderManager;
+import org.chartsy.main.managers.IndicatorManager;
+import org.chartsy.main.managers.OverlayManager;
+import org.chartsy.main.managers.ProxyManager;
+import org.chartsy.main.managers.StockManager;
 import org.chartsy.main.utils.AlphaPropertyEditor;
 import org.chartsy.main.utils.FileUtils;
 import org.chartsy.main.utils.PricePropertyEditor;
@@ -22,20 +30,34 @@ import org.openide.modules.ModuleInstall;
 import org.openide.util.NbPreferences;
 import org.openide.windows.WindowManager;
 
-public class Installer extends ModuleInstall {
+public class Installer extends ModuleInstall
+{
 
-    private static WindowAdapter windowListener = new WindowAdapter() {
-        public void windowOpened(WindowEvent e) {
+    private static final Logger LOG = Logger.getLogger(Installer.class.getName());
+
+    private static WindowAdapter windowListener = new WindowAdapter()
+    {
+        public @Override void windowOpened(WindowEvent e)
+        {
             WindowManager.getDefault().getMainWindow().removeWindowListener(this);
-            WelcomeTopComponent.findInstance().requestActive();
             init();
         }
     };
 
-    private static void init() {
-        InitializeApplication.initialize();
+    private static void init()
+    {
+        ProxyManager.getDefault();
+        DataProviderManager.getDefault();
+        ChartManager.getDefault();
+        IndicatorManager.getDefault();
+        OverlayManager.getDefault();
+        AnnotationManager.getDefault();
+        StockManager.getDefault();
+
+        WelcomeTopComponent.findInstance().requestActive();
+
         Preferences p = NbPreferences.root().node("/org/chartsy/register");
-        boolean registred = Boolean.parseBoolean(p.get("registred", "false"));
+        boolean registred = p.getBoolean("registred", false);
         if (!registred) {
             RegisterForm register = new RegisterForm(new JFrame(), true);
             register.setLocationRelativeTo(WindowManager.getDefault().getMainWindow());
@@ -43,75 +65,113 @@ public class Installer extends ModuleInstall {
         }
     }
 
-    public void restored() {
+    public @Override void restored()
+    {
         super.restored();
         addKeystore();
         addPrintProperties();
         PropertyEditorManager.registerEditor(int.class, StrokePropertyEditor.class);
         PropertyEditorManager.registerEditor(String.class, PricePropertyEditor.class);
         PropertyEditorManager.registerEditor(int.class, AlphaPropertyEditor.class);
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            public void run()
+            {
                 WindowManager.getDefault().getMainWindow().addWindowListener(windowListener);
             }
         });
     }
 
-    public boolean closing() {
+    public @Override boolean closing()
+    {
         NotifyDescriptor d = new NotifyDescriptor.Confirmation("Do you really want to exit the application?", "Exit", NotifyDescriptor.YES_NO_OPTION);
         Object retval = DialogDisplayer.getDefault().notify(d);
-        if (retval.equals(NotifyDescriptor.YES_OPTION)) {
+        if (retval.equals(NotifyDescriptor.YES_OPTION))
+        {
+            DataProviderManager.getDefault().removeFiles();
             return true;
-        } else {
+        } 
+        else
+        {
             return false;
         }
     }
 
-    private Preferences getPreferences() {
-        return NbPreferences.root().node("/org/netbeans/modules/autoupdate");
-    }
+    private Preferences getPreferences() 
+    { return NbPreferences.root().node("/org/netbeans/modules/autoupdate"); }
 
-    private File getChacheDirectory() {
+    private File getChacheDirectory()
+    {
         File cacheDir = null;
         String userDir = System.getProperty("netbeans.user");
-        if (userDir != null) {
+        
+        if (userDir != null)
+        {
             cacheDir = new File(new File(new File(userDir, "var"), "cache"), "catalogcache");
-        } else {
+        } 
+        else
+        {
+            @SuppressWarnings({"deprecation"})
             File dir = FileUtil.toFile(Repository.getDefault().getDefaultFileSystem().getRoot());
             cacheDir = new File(dir, "cachecatalog");
         }
+        
         cacheDir.mkdirs();
         return cacheDir;
     }
 
-    private File getSrcFile() {
-        return new File(new File(new File(new File(System.getProperty("netbeans.home")).getParentFile(), "chartsy"), "core"), "user.ks");
+    private File getSrcFile()
+    { return new File(
+              new File(
+              new File(
+              new File(System.getProperty("netbeans.home")).getParentFile(), "chartsy"), "core"), "user.ks");
     }
 
-    private File getDestFile() { return new File(getChacheDirectory(), "user.ks"); }
+    private File getDestFile()
+    { return new File(getChacheDirectory(), "user.ks"); }
 
-    private File getPropsFile() {
-        return new File(new File(new File(new File(new File(new File(System.getProperty("netbeans.user"), "config"), "Preferences"), "org"), "netbeans"), "modules"), "autoupdate.properties");
+    private File getPropsFile() 
+    { return new File(
+              new File(
+              new File(
+              new File(
+              new File(
+              new File(System.getProperty("netbeans.user"), "config"), "Preferences"), "org"), "netbeans"), "modules"), "autoupdate.properties");
     }
 
-    private void addKeystore() {
-        Thread t = new Thread(new Runnable() {
-            public void run() {
-                while (!getPropsFile().exists()) {}
-                try {
+    private void addKeystore()
+    {
+        Thread t = new Thread(new Runnable()
+        {
+            public void run()
+            {
+                while (!getPropsFile().exists())
+                {}
+                try
+                {
                     getPreferences().put("userKS", "user.ks");
                     getPreferences().put("period", "1");
-                    if (getSrcFile().exists()) FileUtils.copyFile(getSrcFile(), getDestFile());
-                } catch (IOException ex) {
-                    LoggerManager.getDefault().log(ex);
+                    if (getSrcFile().exists())
+                        FileUtils.copyFile(getSrcFile(), getDestFile());
+                } 
+                catch (IOException ex)
+                {
+                    LOG.log(Level.WARNING, "Can't add keystore.", ex);
                 }
             }
         });
         t.start();
     }
 
-    private void addPrintProperties() {
-        if (!(new File(new File(new File(new File(new File(new File(System.getProperty("netbeans.user"), "config"), "Preferences"), "org"), "netbeans"), "modules"), "autoupdate.properties").exists())) {
+    private void addPrintProperties() 
+    {
+        File file = new File(
+                new File(
+                new File(
+                new File(
+                new File(
+                new File(System.getProperty("netbeans.user"), "config"), "Preferences"), "org"), "netbeans"), "modules"), "autoupdate.properties");
+        if (!(file.exists())) {
             Preferences p = NbPreferences.root().node("/org/netbeans/modules/print");
             p.put("print.area.height", "697.8897637795276");
             p.put("print.area.width", "451.2755905511811");

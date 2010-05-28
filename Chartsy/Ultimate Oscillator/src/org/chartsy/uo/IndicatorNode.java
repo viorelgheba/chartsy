@@ -14,6 +14,7 @@ import org.chartsy.main.utils.StrokeGenerator;
 import org.chartsy.main.utils.StrokePropertyEditor;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
+import org.openide.nodes.Node.Property;
 import org.openide.nodes.PropertySupport;
 import org.openide.nodes.Sheet;
 import org.openide.util.lookup.Lookups;
@@ -24,7 +25,7 @@ import org.openide.util.lookup.Lookups;
  */
 public class IndicatorNode extends AbstractNode implements PropertyChangeListener, Externalizable {
 
-    private static final long serialVersionUID = 101L;
+    private static final long serialVersionUID = 2L;
 
     public IndicatorNode() {
         super(Children.LEAF);
@@ -36,7 +37,7 @@ public class IndicatorNode extends AbstractNode implements PropertyChangeListene
         setDisplayName("Ultimate Oscillator Properties");
         indicatorProperties.addPropertyChangeListener(this);
     }
-    
+
     @Override
     protected Sheet createSheet() {
         Sheet sheet = Sheet.createDefault();

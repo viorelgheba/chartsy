@@ -38,8 +38,9 @@ public interface Constants {
     public static final Color COLOR_TAB_TEXT_HOVER = new Color(0xffffff);
     public static final Color COLOR_TAB_CONTENT_BACKGROUND = new Color(0xffffff);
 
+    public static final Color COLOR_TEXT = new Color(0x000000);
     public static final Color COLOR_BULLET = new Color(0xcddc58);
-    public static final Color COLOR_LINK = new Color(0x000000);
+    public static final Color COLOR_LINK = new Color(0xcddc58);
 
     // Fonts
     public static final int FONT_SIZE = Utils.getDefaultFontSize();

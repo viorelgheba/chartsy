@@ -25,7 +25,7 @@ import org.openide.util.lookup.Lookups;
  */
 public class IndicatorNode extends AbstractNode implements PropertyChangeListener, Externalizable {
 
-    private static final long serialVersionUID = 101L;
+    private static final long serialVersionUID = 2L;
 
     public IndicatorNode() {
         super(Children.LEAF);
@@ -58,17 +58,6 @@ public class IndicatorNode extends AbstractNode implements PropertyChangeListene
             label.setName("Label");
             set.put(label);
 
-            // Marker
-            @SuppressWarnings(value = "unchecked")
-            Property marker = new PropertySupport.Reflection(indicatorProperties, boolean.class, "getMarker", "setMarker") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(IndicatorProperties.MARKER); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-            marker.setName("Marker");
-            set.put(marker);
-
             // Signal Color
             @SuppressWarnings(value = "unchecked")
             Property color = new PropertySupport.Reflection(indicatorProperties, Color.class, "getColor", "setColor") {
@@ -92,7 +81,7 @@ public class IndicatorNode extends AbstractNode implements PropertyChangeListene
             stroke.setName("Line Style");
             set.put(stroke);
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
 
         sheet.put(set);

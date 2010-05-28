@@ -1,66 +1,74 @@
 package org.chartsy.candlestick;
 
 import java.awt.Graphics2D;
-import java.awt.Stroke;
-import java.awt.geom.Line2D;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.Rectangle;
 import java.io.Serializable;
-import org.chartsy.main.chartsy.ChartFrame;
-import org.chartsy.main.chartsy.ChartProperties;
-import org.chartsy.main.chartsy.ChartRenderer;
-import org.chartsy.main.chartsy.chart.AbstractChart;
-import org.chartsy.main.dataset.Dataset;
+import org.chartsy.main.ChartFrame;
+import org.chartsy.main.ChartProperties;
+import org.chartsy.main.chart.Chart;
+import org.chartsy.main.data.ChartData;
+import org.chartsy.main.data.Dataset;
+import org.chartsy.main.utils.CoordCalc;
+import org.chartsy.main.utils.Range;
 
 /**
  *
  * @author viorel.gheba
  */
-public class CandleStick extends AbstractChart implements Serializable {
+public class CandleStick extends Chart implements Serializable
+{
 
-    private static final long serialVersionUID = 101L;
+    private static final long serialVersionUID = 2L;
 
-    public CandleStick() { super("Candle Stick", "Description"); }
+    public CandleStick()
+    {}
 
-    public void paint(Graphics2D g, ChartFrame chartFrame) {
-        ChartProperties cp = chartFrame.getChartProperties();
-        ChartRenderer cr = chartFrame.getChartRenderer();
+    public String getName() 
+    { return "Candle Stick"; }
 
-        Stroke stroke = g.getStroke();
+    public void paint(Graphics2D g, ChartFrame cf)
+    {
+        ChartData cd = cf.getChartData();
+        ChartProperties cp = cf.getChartProperties();
+        Rectangle rect = cf.getSplitPanel().getChartPanel().getBounds();
+        rect.grow(-2, -2);
+        Range range = cf.getSplitPanel().getChartPanel().getRange();
 
-        g.setStroke(cp.getBarStroke());
-        Dataset dataset = cr.getVisibleDataset();
-        if (dataset != null) {
-            for(int i = 0; i < dataset.getItemCount(); i++) {
+        if (!cd.isVisibleNull())
+        {
+            Dataset dataset = cd.getVisible();
+            for(int i = 0; i < dataset.getItemsCount(); i++)
+            {
+                double open = dataset.getOpenAt(i);
+                double close = dataset.getCloseAt(i);
+                double high = dataset.getHighAt(i);
+                double low = dataset.getLowAt(i);
 
-                double open = dataset.getOpenValue(i);
-                double close = dataset.getCloseValue(i);
-                double high = dataset.getHighValue(i);
-                double low = dataset.getLowValue(i);
-
-                Point2D.Double pOpen = cr.valueToJava2D(i, open);
-                Point2D.Double pClose = cr.valueToJava2D(i, close);
-                Point2D.Double pHigh = cr.valueToJava2D(i, high);
-                Point2D.Double pLow = cr.valueToJava2D(i, low);
-
+                double x = cd.getX(i, rect);
+                double yOpen = cd.getY(open, rect, range);
+                double yClose = cd.getY(close, rect, range);
+                double yHigh = cd.getY(high, rect, range);
+                double yLow = cd.getY(low, rect, range);
+                
                 double candleWidth = cp.getBarWidth();
-                double candleHeight = Math.abs(pOpen.getY() - pClose.getY());
-
-                if (open > close ? cp.getBarDownVisibility() : cp.getBarUpVisibility()) {
+                double candleHeight = Math.abs(yOpen - yClose);
+                
+                if (open > close ? cp.getBarDownVisibility() : cp.getBarUpVisibility())
+                {
                     g.setPaint(open > close ? cp.getBarDownColor() : cp.getBarUpColor());
-                    g.fill(new Rectangle2D.Double((open > close ? pOpen.getX() : pClose.getX()) - candleWidth/2, (open > close ? pOpen.getY() : pClose.getY()), candleWidth, candleHeight));
+                    g.fill(CoordCalc.rectangle(x - candleWidth/2, (open > close ? yOpen : yClose), candleWidth, candleHeight));
                 }
 
-                if (cp.getBarVisibility()) {
+                if (cp.getBarVisibility())
+                {
                     g.setPaint(cp.getBarColor());
-                    g.draw(new Rectangle2D.Double((open > close ? pOpen.getX() : pClose.getX()) - candleWidth/2, (open > close ? pOpen.getY() : pClose.getY()), candleWidth, candleHeight));
-                    g.draw(new Line2D.Double(pHigh, (open > close ? pOpen : pClose)));
-                    g.draw(new Line2D.Double((open > close ? pClose : pOpen), pLow));
+                    g.setStroke(cp.getBarStroke());
+                    g.draw(CoordCalc.line(x, (open > close ? yOpen : yClose), x, yHigh));
+                    g.draw(CoordCalc.line(x, (open > close ? yClose : yOpen), x, yLow));
+                    g.draw(CoordCalc.rectangle(x - candleWidth/2, (open > close ? yOpen : yClose), candleWidth, candleHeight));
                 }
             }
         }
-
-        g.setStroke(stroke);
     }
 
 }

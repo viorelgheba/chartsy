@@ -8,7 +8,7 @@ import java.io.Serializable;
  */
 public strictfp class Range implements Serializable {
 
-    private static final long serialVersionUID = 101L;
+    private static final long serialVersionUID = 2L;
 
     private double lower;
     private double upper;
@@ -18,12 +18,8 @@ public strictfp class Range implements Serializable {
     }
 
     public Range(double lower, double upper) {
-        if (lower > upper) {
-            String msg = "Range(double, double): lower (" + lower + ") must be <= upper (" + upper + ")";
-            throw new IllegalArgumentException(msg);
-        }
-        this.lower = lower;
-        this.upper = upper;
+        this.lower = Math.min(lower, upper);
+        this.upper = Math.max(lower, upper);
     }
 
     public double getLowerBound() {
@@ -35,7 +31,9 @@ public strictfp class Range implements Serializable {
     }
 
     public double getLength() {
-        return this.lower / 2.0 + this.upper / 2.0;
+        if (lower >= 0 && upper >= 0) return upper - lower;
+        else if (lower < 0 && upper >= 0) return upper + Math.abs(lower);
+        else return Math.abs(lower) - Math.abs(upper);
     }
 
     public boolean contains(double value) {

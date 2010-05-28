@@ -16,7 +16,7 @@ import org.chartsy.main.utils.StrokeGenerator;
  */
 public class AnnotationProperties implements Serializable {
 
-    private static final long serialVersionUID = 101L;
+    private static final long serialVersionUID = 2L;
 
     public static final Color COLOR = Color.RED;
     public static final int STROKE_INDEX = 0;

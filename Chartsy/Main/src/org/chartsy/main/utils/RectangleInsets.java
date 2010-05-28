@@ -8,7 +8,7 @@ import java.io.Serializable;
  */
 public class RectangleInsets implements Serializable {
 
-    private static final long serialVersionUID = 101L;
+    private static final long serialVersionUID = 2L;
 
     public double top;
     public double bottom;

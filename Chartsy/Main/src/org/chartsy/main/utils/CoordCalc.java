@@ -1,10 +1,8 @@
 package org.chartsy.main.utils;
 
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.Calendar;
-import org.chartsy.main.chartsy.ChartRenderer;
-import org.chartsy.main.dataset.Dataset;
 
 /**
  *
@@ -14,57 +12,114 @@ public class CoordCalc {
 
     protected CoordCalc() {}
 
-    protected static Rectangle2D.Double rectangle(double x, double y, double w, double h) { return new Rectangle2D.Double(x, y, w, h); }
-    protected static Bounds bounds(double x, double y, double w, double h) { return new Bounds(x, y, w, h); }
+    public static Line2D.Double line(Point2D p1, Point2D p2)
+    { return new Line2D.Double(p1, p2); }
+
+    public static Line2D.Double line(double x1, double y1, double x2, double y2)
+    { return new Line2D.Double(x1, y1, x2, y2); }
+
+    public static Bounds bounds(double x, double y, double width, double height) 
+    { return new Bounds(x, y, width, height); }
+
+    public static Rectangle2D.Double rectangle(double x, double y, double w, double h)
+    { return new Rectangle2D.Double(x, y, w, h); }
+
+    /*public static double getX(ChartRenderer cr, double index, Bounds bounds) {
+        double dx = (bounds.getWidth() / cr.getPeriod()) * index;
+        double cx = bounds.getWidth() / (2*cr.getVisibleDataset().getItemsCount());
+        return dx + cx;
+    }
+
+    public static double getY(ChartRenderer cr, double value, Bounds bounds, Range range) {
+        double dif = range.getUpperBound() - range.getLowerBound();
+        double percent = ((range.getUpperBound() - value) / dif) * 100;
+        double py = bounds.getMinY() + (bounds.getHeight() * percent) / 100;
+
+        if (range.getLowerBound() < 0.0) {
+            dif = Math.abs(range.getUpperBound()) + Math.abs(range.getLowerBound());
+            double h1 = (Math.abs(range.getUpperBound()) * bounds.getHeight()) / dif;
+            double h2 = (Math.abs(range.getLowerBound()) * bounds.getHeight()) / dif;
+            if (value >= 0) {
+                percent = ((range.getUpperBound() - value) / range.getUpperBound()) * 100;
+                py = bounds.getMinY() + (h1 * percent) / 100;
+            } else {
+                percent = ((Math.abs(range.getLowerBound()) - Math.abs(value)) / Math.abs(range.getLowerBound())) * 100;
+                py = bounds.getMinY() + h1 + (h2 - ((h2 * percent) / 100));
+            }
+        }
+
+        return py;
+    }
+
+    public static int getIndex(ChartRenderer cr, double x, Bounds bounds)
+    {
+        int index = -1;
+        int items = cr.getPeriod();
+        double w = bounds.getWidth() / items;
+
+        for (int i = 0; i < items; i++)
+        {
+            Bounds b = new Bounds(bounds.getMinX() + (i * w), 0, w, 10);
+            if (b.contains(x, 1))
+            {
+                index = i;
+                break;
+            }
+        }
+
+        return index;
+    }
 
     public static double getX(ChartRenderer cr, double x) {
         Integer index = null;
         double xc = 0;
-        int items = cr.getItems();
-        int itemsCount = cr.getMainDataset().getItemCount();
-        int negativeNr = itemsCount - items - (itemsCount - cr.getEnd());
+        int items = cr.getPeriod();
+        int itemsCount = cr.getChartFrame().getDataset().getItemsCount();
+        int negativeNr = itemsCount - items - (itemsCount - cr.getLast());
         int positiveNr = itemsCount - negativeNr;
         double w = cr.getChartBounds().getWidth() / items;
-        double h = cr.getHeight();
+        double h = cr.getChartBounds().getHeight();
         double minX = cr.getChartBounds().getMinX();
         boolean negative = (x < minX);
         if (negative) {
             for (int i = 0; i < negativeNr; i++) {
-                Bounds rect = bounds(minX + (-1 * (i * w)), 0, w, h);
+                Rectangle2D.Double rect = new Rectangle2D.Double(minX + (-1 * (i * w)), 0, w, h);
                 if (rect.contains(x, 0)) {
                     index = -1 * i;
                     xc = rect.getCenterX();
                     break;
                 }
             }
-            if (index == null) xc = bounds(minX + (-1 * (negativeNr * w)), 0, w, h).getCenterX();
+            if (index == null) 
+                xc = new Rectangle2D.Double(minX + (-1 * (negativeNr * w)), 0, w, h).getCenterX();
         } else {
             for (int i = 0; i < positiveNr; i++) {
-                Bounds rect = bounds(minX + (i * w), 0, w, h);
+                Rectangle2D.Double rect = new Rectangle2D.Double(minX + (i * w), 0, w, h);
                 if (rect.contains(x, 0)) {
                     index = i;
                     xc = rect.getCenterX();
                     break;
                 }
             }
-            if (index == null) xc = bounds(minX + ((positiveNr -1 ) * w), 0, w, h).getCenterX();
+            if (index == null) 
+                xc = new Rectangle2D.Double(minX + ((positiveNr -1 ) * w), 0, w, h).getCenterX();
         }
         return xc;
     }
 
     public static long xToLong(ChartRenderer cr, double x) {
         Integer index = null;
-        int items = cr.getItems(); int end = cr.getEnd();
-        int itemsCount = cr.getMainDataset().getItemCount();
+        int items = cr.getPeriod(); int end = cr.getLast();
+        int itemsCount = cr.getChartFrame().getDataset().getItemsCount();
         int negativeNr = itemsCount - items - (itemsCount - end);
         int positiveNr = itemsCount - negativeNr;
         double w = cr.getChartBounds().getWidth() / items;
-        double h = cr.getHeight();
+        double h = cr.getChartBounds().getHeight();
         double minX = cr.getChartBounds().getMinX();
         boolean negative = (x < minX);
         if (negative) {
             for (int i = 0; i < negativeNr; i++) {
-                Bounds rect = bounds(minX + (-1 * (i * w)), 0, w, h);
+                Rectangle2D.Double rect = new Rectangle2D.Double(minX + (-1 * (i * w)), 0, w, h);
                 if (rect.contains(x, 0)) {
                     index = negativeNr - i;
                     break;
@@ -73,7 +128,7 @@ public class CoordCalc {
             if (index == null) index = 0;
         } else {
             for (int i = 0; i < positiveNr; i++) {
-                Bounds rect = bounds(minX + (i * w), 0, w, h);
+                Rectangle2D.Double rect = new Rectangle2D.Double(minX + (i * w), 0, w, h);
                 if (rect.contains(x, 0)) {
                     index = negativeNr + i;
                     break;
@@ -81,35 +136,35 @@ public class CoordCalc {
             }
             if (index == null) index = itemsCount - 1;
         }
-        return cr.getMainDataset().getDate(index).getTime();
+        return cr.getChartFrame().getDataset().getTimeAt(index);
     }
 
     public static Integer longIndex(ChartRenderer cr, long t) {
         Integer index = null;
-        Dataset dataset = cr.getMainDataset();
-        int itemsCount = dataset.getItemCount();
-        if (cr.getTime().equals("Daily")) {
+        Dataset dataset = cr.getChartFrame().getDataset();
+        int itemsCount = dataset.getItemsCount();
+        if (cr.getInterval() instanceof DailyInterval) {
             for (int i = 0; i < itemsCount; i++) {
-                long l = dataset.getDate(i).getTime();
+                long l = dataset.getTimeAt(i);
                 if (l == t) { index = i; break; }
             }
-        } else if (cr.getTime().equals("Weekly")) {
+        } else if (cr.getInterval() instanceof WeeklyInterval) {
             Calendar c1 = Calendar.getInstance();
             Calendar c2 = Calendar.getInstance();
             c1.setTimeInMillis(t);
             for (int i = 0; i < itemsCount; i++) {
-                long l = dataset.getDate(i).getTime();
+                long l = dataset.getTimeAt(i);
                 c2.setTimeInMillis(l);
                 if (c1.get(Calendar.WEEK_OF_YEAR) == c2.get(Calendar.WEEK_OF_YEAR) && c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR)) {
                     index = i; break;
                 }
             }
-        } else if (cr.getTime().equals("Monthly")) {
+        } else if (cr.getInterval() instanceof MonthlyInterval) {
             Calendar c1 = Calendar.getInstance();
             Calendar c2 = Calendar.getInstance();
             c1.setTimeInMillis(t);
             for (int i = 0; i < itemsCount; i++) {
-                long l = dataset.getDate(i).getTime();
+                long l = dataset.getTimeAt(i);
                 c2.setTimeInMillis(l);
                 if (c1.get(Calendar.MONTH) == c2.get(Calendar.MONTH) && c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR)) {
                     index = i; break;
@@ -117,13 +172,13 @@ public class CoordCalc {
             }
         } else {
             for (int i = 0; i < itemsCount; i++) {
-                long l = dataset.getDate(i).getTime();
+                long l = dataset.getTimeAt(i);
                 if (l == t) { index = i; break; }
             }
         }
         if (index == null) {
-            long min = dataset.getDate(0).getTime();
-            long max = dataset.getDate(itemsCount - 1).getTime();
+            long min = dataset.getTimeAt(0);
+            long max = dataset.getTimeAt(itemsCount - 1);
             if (t < min) index = 0;
             else if (t > max) index = itemsCount - 1;
         }
@@ -134,20 +189,22 @@ public class CoordCalc {
         double xc = 0;
         Integer index = longIndex(cr, t);
         if (index != null) {
-            int items = cr.getItems();
-            int end = cr.getEnd();
+            int items = cr.getPeriod();
+            int end = cr.getLast();
 
-            int itemsCount = cr.getMainDataset().getItemCount();
+            int itemsCount = cr.getChartFrame().getDataset().getItemsCount();
             int negativeNr = itemsCount - items - (itemsCount - end);
 
             double w = cr.getChartBounds().getWidth() / items;
-            double h = cr.getHeight();
+            double h = cr.getChartBounds().getHeight();
             double minX = cr.getChartBounds().getMinX();
 
             boolean negative = (index < negativeNr);
 
-            if (negative) xc = bounds(minX + ((index - negativeNr) * w), 0, w, h).getCenterX();
-            else xc = bounds(minX + ((index - negativeNr) * w), 0, w, h).getCenterX();
+            if (negative)
+                    xc = new Rectangle2D.Double(minX + ((index - negativeNr) * w), 0, w, h).getCenterX();
+            else 
+                xc = new Rectangle2D.Double(minX + ((index - negativeNr) * w), 0, w, h).getCenterX();
 
             return xc;
         }
@@ -161,27 +218,27 @@ public class CoordCalc {
 
     public static long getPrevT(ChartRenderer cr, long t) {
         int index = longIndex(cr, t);
-        return cr.getMainDataset().getDate(index - 1).getTime();
+        return cr.getChartFrame().getDataset().getTimeAt(index - 1);
     }
 
     public static boolean hasNextT(ChartRenderer cr, long t) {
         int index = longIndex(cr, t);
-        int itemsCount = cr.getMainDataset().getItemCount();
+        int itemsCount = cr.getChartFrame().getDataset().getItemsCount();
         return (index + 1) < itemsCount;
     }
 
     public static long getNextT(ChartRenderer cr, long t) {
         int index = longIndex(cr, t);
-        return cr.getMainDataset().getDate(index + 1).getTime();
+        return cr.getChartFrame().getDataset().getTimeAt(index + 1);
     }
 
-    public static double yToValue(ChartRenderer cr, double y, Rectangle2D.Double bounds, Range range) {
+    public static double yToValue(ChartRenderer cr, double y, Bounds bounds, Range range) {
         if (bounds != null && range != null) {
             double dif = range.getUpperBound() - range.getLowerBound();
             double percent = (y - bounds.getMinY()) / bounds.getHeight();
             double value = range.getUpperBound() - (percent * dif);
 
-            Point2D.Double zero = range.contains(0) ? cr.valueToJava2D(0, 0, bounds, range) : null;
+            Point2D.Double zero = range.contains(0) ? valueToJava2D(cr, 0, 0, bounds, range) : null;
             if (zero != null) {
                 dif = Math.abs(range.getUpperBound()) + Math.abs(range.getLowerBound());
 
@@ -226,5 +283,34 @@ public class CoordCalc {
         }
         return 0;
     }
+
+    public static Point2D.Double valueToJava2D(ChartRenderer cr, double xvalue, double yvalue, Bounds bounds, Range range) {
+        double x = (bounds.getWidth() / cr.getPeriod()) * xvalue;
+        double c = bounds.getWidth() / (2 * cr.getVisibleDataset().getItemsCount());
+        double px = bounds.getMinX() + x + c;
+
+        double dif = range.getUpperBound() - range.getLowerBound();
+        double percent = ((range.getUpperBound() - yvalue) / dif) * 100;
+        double py = bounds.getMinY() + (bounds.getHeight() * percent) / 100;
+
+        if (range.contains(0)) {
+            dif = Math.abs(range.getUpperBound()) + Math.abs(range.getLowerBound());
+
+            double h1 = (Math.abs(range.getUpperBound()) * bounds.getHeight()) / dif;
+            double h2 = (Math.abs(range.getLowerBound()) * bounds.getHeight()) / dif;
+
+            if (yvalue >= 0) {
+                percent = ((range.getUpperBound() - yvalue) / range.getUpperBound()) * 100;
+                py = bounds.getMinY() + (h1 * percent) / 100;
+            } else {
+                percent = ((Math.abs(range.getLowerBound()) - Math.abs(yvalue)) / Math.abs(range.getLowerBound())) * 100;
+                py = bounds.getMinY() + h1 + (h2 - ((h2 * percent) / 100));
+            }
+        }
+
+        Point2D.Double p = new Point2D.Double(px, py);
+
+        return p;
+    }*/
 
 }

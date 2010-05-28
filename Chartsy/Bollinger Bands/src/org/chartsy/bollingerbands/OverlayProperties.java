@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import org.chartsy.main.dataset.Dataset;
+import org.chartsy.main.data.Dataset;
 import org.chartsy.main.utils.RandomColor;
 import org.chartsy.main.utils.StrokeGenerator;
 

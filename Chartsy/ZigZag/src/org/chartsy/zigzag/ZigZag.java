@@ -2,13 +2,15 @@ package org.chartsy.zigzag;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
-import org.chartsy.main.chartsy.ChartFrame;
-import org.chartsy.main.chartsy.DefaultPainter;
-import org.chartsy.main.chartsy.chart.Overlay;
-import org.chartsy.main.dataset.Dataset;
+import org.chartsy.main.ChartFrame;
+import org.chartsy.main.chart.Overlay;
+import org.chartsy.main.data.DataItem;
+import org.chartsy.main.data.Dataset;
+import org.chartsy.main.utils.DefaultPainter;
 import org.chartsy.main.utils.Range;
 import org.openide.nodes.AbstractNode;
 
@@ -16,18 +18,32 @@ import org.openide.nodes.AbstractNode;
  *
  * @author viorel.gheba
  */
-public class ZigZag extends Overlay implements Serializable {
+public class ZigZag 
+        extends Overlay
+        implements Serializable
+{
 
-    private static final long serialVersionUID = 101L;
+    private static final long serialVersionUID = 2L;
     public static final String ZZ = "zz";
-
     private OverlayProperties properties;
 
-    public ZigZag() { super("ZigZag", "Description", "ZigZag"); properties = new OverlayProperties(); }
+    public ZigZag()
+    {
+        super();
+        properties = new OverlayProperties();
+    }
 
-    public String getLabel() { return properties.getLabel(); }
+    public String getName()
+    { return "ZigZag"; }
 
-    public LinkedHashMap getHTML(ChartFrame cf, int i) {
+    public String getLabel() 
+    { return properties.getLabel(); }
+
+    public Overlay newInstance() 
+    { return new ZigZag(); }
+
+    public LinkedHashMap getHTML(ChartFrame cf, int i)
+    {
         LinkedHashMap ht = new LinkedHashMap();
 
         DecimalFormat df = new DecimalFormat("#,##0.00");
@@ -45,57 +61,78 @@ public class ZigZag extends Overlay implements Serializable {
         return ht;
     }
 
-    public Range getRange(ChartFrame cf) {
-        return cf.getChartRenderer().getChartRange();
+    public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
+    {
+        Dataset d = visibleDataset(cf, ZZ);
+        if (d != null)
+        {
+            Range range = cf.getSplitPanel().getChartPanel().getRange();
+            DefaultPainter.line(g, cf, range, bounds, d, properties.getColor(), properties.getStroke());
+        }
     }
 
-    public void calculate() {
+    public void calculate()
+    {
         Dataset initial = getDataset();
-        if (initial != null && !initial.isEmpty()) {
-            Dataset dataset = getDataset(initial); addDataset(ZZ, dataset);
+        if (initial != null && !initial.isEmpty())
+        {
+            Dataset d = getDataset(initial);
+            addDataset(ZZ, d);
         }
     }
 
-    public void paint(Graphics2D g, ChartFrame cf) {
-        Dataset dataset = visibleDataset(cf, ZZ);
-        if (dataset != null)
-            DefaultPainter.line(g, cf, dataset, properties.getColor(), properties.getStroke()); // paint line
-    }
+    public Color[] getColors()
+    { return new Color[] {properties.getColor()}; }
 
-    public Color[] getColors() { return new Color[] {properties.getColor()}; }
     public double[] getValues(ChartFrame cf) {
-        Dataset dataset = visibleDataset(cf, ZZ);
-        if (dataset != null) {
-            return new double[] {dataset.getCloseValue(dataset.getLastIndex())};
+        Dataset d = visibleDataset(cf, ZZ);
+        if (d != null)
+        {
+            return new double[] {d.getLastClose()};
         }
         return new double[] {};
     }
-    public double[] getValues(ChartFrame cf, int i) {
-        Dataset dataset = visibleDataset(cf, ZZ);
-        if (dataset != null) {
-            return new double[] {dataset.getCloseValue(i)};
-        }
-        return new double[] {};
-    }
-    public boolean getMarkerVisibility() { return properties.getMarker(); }
-    public AbstractNode getNode() { return new OverlayNode(properties); }
 
-    private Dataset getDataset(final Dataset initial) {
-        Dataset dataset = Dataset.EMPTY(initial);
+    public double[] getValues(ChartFrame cf, int i)
+    {
+        Dataset d = visibleDataset(cf, ZZ);
+        if (d != null) {
+            return new double[] {d.getCloseAt(i)};
+        }
+        return new double[] {};
+    }
+
+    public boolean getMarkerVisibility()
+    { return properties.getMarker(); }
+
+    public AbstractNode getNode()
+    { return new OverlayNode(properties); }
+
+    private Dataset getDataset(final Dataset initial)
+    {
+        int count = initial.getItemsCount();
+        Dataset result = Dataset.EMPTY(count);
 
         boolean switchVar = false;
-        for (int i = 2; i <= initial.getItemCount(); i++) {
-            if (i < initial.getItemCount()) {
-                if (switchVar == false) {
-                    if (initial.getHighValue(i-1) > initial.getHighValue(i-2) && initial.getHighValue(i-1) > initial.getHighValue(i)) {
-                        dataset.setData(0, initial.getHighValue(i-1), 0, 0, 0, 0, i-1);
+        for (int i = 2; i <= count; i++)
+        {
+            if (i < count)
+            {
+                if (switchVar == false)
+                {
+                    if (initial.getHighAt(i-1) > initial.getHighAt(i-2) && initial.getHighAt(i-1) > initial.getHighAt(i))
+                    {
+                        result.setDataItem(i-1, new DataItem(initial.getTimeAt(i-1), initial.getHighAt(i-1)));
                         switchVar = true;
                         continue;
                     }
                 }
-                if (switchVar == true) {
-                    if (initial.getLowValue(i-1) < initial.getLowValue(i-2) && initial.getLowValue(i-1) < initial.getLowValue(i)) {
-                        dataset.setData(0, initial.getLowValue(i-1), 0, 0, 0, 0, i-1);
+
+                if (switchVar == true)
+                {
+                    if (initial.getLowAt(i-1) < initial.getLowAt(i-2) && initial.getLowAt(i-1) < initial.getLowAt(i))
+                    {
+                        result.setDataItem(i-1, new DataItem(initial.getTimeAt(i-1), initial.getLowAt(i-1)));
                         switchVar = false;
                         continue;
                     }
@@ -103,7 +140,10 @@ public class ZigZag extends Overlay implements Serializable {
             }
         }
 
-        return dataset;
+        return result;
     }
+
+    public String getPrice() 
+    { return Dataset.CLOSE; }
 
 }

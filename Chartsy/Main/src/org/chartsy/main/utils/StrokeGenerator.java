@@ -9,14 +9,17 @@ import java.awt.Stroke;
  */
 public final class StrokeGenerator {
 
-    public static final Stroke DEFAULT_STROKE = new BasicStroke(1);
+    public static final Stroke DEFAULT_STROKE = new BasicStroke(1.0f);
     private static final Stroke[] strokes = {
         DEFAULT_STROKE,
-        new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 0, new float[] { 9, 6 }, 0),
-        new BasicStroke(2),
-        new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 0, new float[] { 9, 6 }, 0),
-        new BasicStroke(3),
-        new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 0, new float[] { 9, 6 }, 0)
+        new BasicStroke(1.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 0.0f, new float[] {9.0f,6.0f}, 0.0f),
+        new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1.0f, new float[] {1.0f,1.0f}, 0.0f),
+        new BasicStroke(2.0f),
+        new BasicStroke(2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 0.0f, new float[] {9.0f,6.0f}, 0.0f),
+        new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 2.0f, new float[] {2.0f,2.0f}, 0.0f),
+        new BasicStroke(3.0f),
+        new BasicStroke(3.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 0.0f, new float[] {9.0f,6.0f}, 0.0f),
+        new BasicStroke(3.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 3.0f, new float[] {3.0f,3.0f}, 0.0f)
     };
 
     private StrokeGenerator() {}

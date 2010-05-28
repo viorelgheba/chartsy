@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.lang.reflect.InvocationTargetException;
-import org.chartsy.main.managers.LoggerManager;
 import org.chartsy.main.utils.PricePropertyEditor;
 import org.chartsy.main.utils.StrokeGenerator;
 import org.chartsy.main.utils.StrokePropertyEditor;
@@ -26,7 +25,7 @@ import org.openide.util.lookup.Lookups;
  */
 public class OverlayNode extends AbstractNode implements PropertyChangeListener, Externalizable {
 
-    private static final long serialVersionUID = 101L;
+    private static final long serialVersionUID = 2L;
 
     public OverlayNode() {
         super(Children.LEAF);
@@ -110,7 +109,7 @@ public class OverlayNode extends AbstractNode implements PropertyChangeListener,
             strokeIndex.setName("Style");
             set.put(strokeIndex);
         } catch (Exception ex) {
-            LoggerManager.getDefault().log(ex.getMessage(), ex);
+            ex.printStackTrace();
         }
 
         sheet.put(set);

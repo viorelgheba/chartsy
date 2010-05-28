@@ -2,39 +2,56 @@ package org.chartsy.stochastics;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.Stroke;
-import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
-import org.chartsy.main.chartsy.ChartFrame;
-import org.chartsy.main.chartsy.DefaultPainter;
-import org.chartsy.main.chartsy.chart.Indicator;
-import org.chartsy.main.dataset.Dataset;
+import org.chartsy.main.ChartFrame;
+import org.chartsy.main.chart.Indicator;
+import org.chartsy.main.data.DataItem;
+import org.chartsy.main.data.Dataset;
+import org.chartsy.main.utils.DefaultPainter;
 import org.chartsy.main.utils.Range;
+import org.chartsy.main.utils.StrokeGenerator;
 import org.openide.nodes.AbstractNode;
 
 /**
  *
  * @author viorel.gheba
  */
-public class Stochastics extends Indicator implements Serializable {
+public class Stochastics 
+        extends Indicator
+        implements Serializable
+{
 
-    private static final long serialVersionUID = 101L;
+    private static final long serialVersionUID = 2L;
     public static final String SLOWD = "slow%D";
     public static final String SLOWK = "slow%K";
     public static final String FASTD = "fast%D";
     public static final String FASTK = "fast%K";
+    private IndicatorProperties properties;
 
-    private IndicatorProperties properties = new IndicatorProperties();
-
-    public Stochastics() {
-        super("Stochastics", "Description", "Stochastics");
+    public Stochastics()
+    {
+        super();
+        properties = new IndicatorProperties();
     }
 
-    public String getLabel() { return properties.getLabel() + " (" + properties.getPeriodK() + ", " + properties.getSmooth() + ", " + properties.getPeriodD() + ")"; }
+    public String getName()
+    { return "Stochastics"; }
 
-    public LinkedHashMap getHTML(ChartFrame cf, int i) {
+    public String getLabel()
+    { return properties.getLabel() + " (" + properties.getPeriodK() + ", " + properties.getSmooth() + ", " + properties.getPeriodD() + ")"; }
+
+    public String getPaintedLabel(ChartFrame cf)
+    { return (properties.getSF() ? "Fast" : "Slow") + getLabel(); }
+
+    public Indicator newInstance() 
+    { return new Stochastics(); }
+
+    public LinkedHashMap getHTML(ChartFrame cf, int i)
+    {
         LinkedHashMap ht = new LinkedHashMap();
 
         DecimalFormat df = new DecimalFormat("#,##0.00");
@@ -53,75 +70,123 @@ public class Stochastics extends Indicator implements Serializable {
         return ht;
     }
 
-    public Range getRange(ChartFrame cf) {
-        return new Range(0, 100);
-    }
+    @Override
+    public Range getRange(ChartFrame cf) 
+    { return new Range(0, 100); }
 
-    public void paint(Graphics2D g, ChartFrame cf) {
+    public void paint(Graphics2D g, ChartFrame cf, Rectangle bounds)
+    {
         Dataset stoD = visibleDataset(cf, properties.getSF() ? FASTD : SLOWD);
         Dataset stoK = visibleDataset(cf, properties.getSF() ? FASTK : SLOWK);
-        if (stoD != null && stoK != null) {
-            Range range = getRange(cf);
-            Rectangle2D.Double bounds = getBounds();
 
-            DefaultPainter.line(g, cf, range, bounds, stoD, properties.getColorD(), properties.getStrokeD());
-            DefaultPainter.line(g, cf, range, bounds, stoK, properties.getColorK(), properties.getStrokeK());
-            DefaultPainter.label(g, cf, (properties.getSF() ? "Fast" : "Slow") + getLabel(), bounds); // paint label
+        if (stoD != null && stoK != null)
+        {
+            if (maximized)
+            {
+                Range range = getRange(cf);
+
+                DefaultPainter.line(g, cf, range, bounds, stoD, properties.getColorD(), properties.getStrokeD());
+                DefaultPainter.line(g, cf, range, bounds, stoK, properties.getColorK(), properties.getStrokeK());
+            }
         }
     }
 
-    public void calculate() {
+    public void calculate()
+    {
         Dataset initial = getDataset();
-        if (initial != null && !initial.isEmpty()) {
-            Dataset[] datasets = getDataset(initial);
-            addDataset(SLOWD, datasets[0]);
-            addDataset(SLOWK, datasets[1]);
-            addDataset(FASTD, datasets[2]);
-            addDataset(FASTK, datasets[3]);
+        if (initial != null && !initial.isEmpty())
+        {
+            Dataset[] ds = getDataset(initial);
+            addDataset(SLOWD, ds[0]);
+            addDataset(SLOWK, ds[1]);
+            addDataset(FASTD, ds[2]);
+            addDataset(FASTK, ds[3]);
         }
     }
 
-    public boolean hasZeroLine() { return false; }
-    public boolean getZeroLineVisibility() { return false; }
-    public Color getZeroLineColor() { return null; }
-    public Stroke getZeroLineStroke() { return null; }
-    public Color[] getColors() { return new Color[] {properties.getColorD(), properties.getColorK()}; }
-    public double[] getValues(ChartFrame cf) {
-        Dataset stoD = visibleDataset(cf, properties.getSF() ? FASTD : SLOWD);
-        Dataset stoK = visibleDataset(cf, properties.getSF() ? FASTK : SLOWK);
-        if (stoD != null && stoK != null)
-            return new double[] {stoD.getLastPriceValue(Dataset.CLOSE), stoK.getLastPriceValue(Dataset.CLOSE)};
-        return new double[] {};
-    }
-    public double[] getValues(ChartFrame cf, int i) {
-        Dataset stoD = visibleDataset(cf, properties.getSF() ? FASTD : SLOWD);
-        Dataset stoK = visibleDataset(cf, properties.getSF() ? FASTK : SLOWK);
-        if (stoD != null && stoK != null)
-            return new double[] {stoD.getPriceValue(i, Dataset.CLOSE), stoK.getPriceValue(i, Dataset.CLOSE)};
-        return new double[] {};
-    }
-    public boolean getMarkerVisibility() { return properties.getMarker(); }
-    public AbstractNode getNode() { return new IndicatorNode(properties); }
+    public boolean hasZeroLine()
+    { return false; }
 
-    private Dataset[] getDataset(final Dataset initial) {
+    public boolean getZeroLineVisibility()
+    { return false; }
+
+    public Color getZeroLineColor()
+    { return null; }
+
+    public Stroke getZeroLineStroke()
+    { return null; }
+
+    public boolean hasDelimiters() 
+    { return true; }
+
+    public boolean getDelimitersVisibility() 
+    { return true; }
+
+    public double[] getDelimitersValues() 
+    { return new double[] {20d, 50d, 80d}; }
+
+    public Color getDelimitersColor() 
+    { return new Color(0xbbbbbb); }
+
+    public Stroke getDelimitersStroke() 
+    { return StrokeGenerator.getStroke(1); }
+
+    public Color[] getColors()
+    { return new Color[] {properties.getColorD(), properties.getColorK()}; }
+
+    public double[] getValues(ChartFrame cf)
+    {
+        Dataset stoD = visibleDataset(cf, properties.getSF() ? FASTD : SLOWD);
+        Dataset stoK = visibleDataset(cf, properties.getSF() ? FASTK : SLOWK);
+
+        if (stoD != null && stoK != null)
+            return new double[] {stoD.getLastClose(), stoK.getLastClose()};
+        return new double[] {};
+    }
+    public double[] getValues(ChartFrame cf, int i)
+    {
+        Dataset stoD = visibleDataset(cf, properties.getSF() ? FASTD : SLOWD);
+        Dataset stoK = visibleDataset(cf, properties.getSF() ? FASTK : SLOWK);
+
+        if (stoD != null && stoK != null)
+            return new double[] {stoD.getCloseAt(i), stoK.getCloseAt(i)};
+        return new double[] {};
+    }
+
+    public boolean getMarkerVisibility() 
+    { return properties.getMarker(); }
+
+    public AbstractNode getNode()
+    { return new IndicatorNode(properties); }
+
+    @Override
+    public Double[] getPriceValues(ChartFrame cf)
+    { return new Double[] {new Double(20), new Double(50), new Double(80)}; }
+
+    private Dataset[] getDataset(final Dataset initial)
+    {
         int periodK = properties.getPeriodK();
         int smooth = properties.getSmooth();
         int periodD = properties.getPeriodD();
-        
-        Dataset F_K = Dataset.EMPTY(initial); // fast %K
-        for (int i = periodK - 1; i < initial.getItemCount(); i++) {
-            double lk = initial.getLowValue(i);
-            double hk = initial.getHighValue(i);
+        int count = initial.getItemsCount();
 
-            for (int j = 0; j < periodK; j++) {
-                lk = Math.min(lk, initial.getLowValue(i-j));
-                hk = Math.max(hk, initial.getHighValue(i-j));
+        Dataset F_K = Dataset.EMPTY(count); // fast %K
+
+        for (int i = periodK - 1; i < count; i++)
+        {
+            double lk = initial.getLowAt(i);
+            double hk = initial.getHighAt(i);
+
+            for (int j = 0; j < periodK; j++)
+            {
+                lk = Math.min(lk, initial.getLowAt(i-j));
+                hk = Math.max(hk, initial.getHighAt(i-j));
             }
 
-            double currentFK = hk != lk ? 100 * (initial.getCloseValue(i) - lk) / (hk - lk) : 0;
+            double currentFK = hk != lk ? 100 * (initial.getCloseAt(i) - lk) / (hk - lk) : 0;
             currentFK = currentFK < 0 ? 0 : currentFK;
 
-            F_K.setData(0, currentFK, 0, 0, 0, 0, i);
+            F_K.setDataItem(i, new DataItem(initial.getTimeAt(i), currentFK));
         }
 
         Dataset F_D = Dataset.SMA(F_K, periodD); // fast %D

@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.lang.reflect.InvocationTargetException;
-import org.chartsy.main.chartsy.ChartProperties;
+import org.chartsy.main.ChartProperties;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.PropertySupport;
@@ -23,7 +23,7 @@ import org.openide.util.lookup.Lookups;
  */
 public class ChartNode extends AbstractNode implements PropertyChangeListener, Externalizable {
 
-    private static final long serialVersionUID = 101L;
+    private static final long serialVersionUID = 2L;
 
     public ChartNode() {
         super(Children.LEAF);
@@ -63,7 +63,7 @@ public class ChartNode extends AbstractNode implements PropertyChangeListener, E
             Property backgroundColor = new PropertySupport.Reflection(chartProperties, Color.class, "getBackgroundColor", "setBackgroundColor") {
                 public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
                 public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(DefaultTheme.BACKGROUND_COLOR); }
+                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(ChartProperties.BACKGROUND_COLOR); }
                 public boolean supportsDefaultValue() { return true; }
             };
 
@@ -72,7 +72,7 @@ public class ChartNode extends AbstractNode implements PropertyChangeListener, E
             Property font = new PropertySupport.Reflection(chartProperties, Font.class, "getFont", "setFont") {
                 public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
                 public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(DefaultTheme.FONT); }
+                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(ChartProperties.FONT); }
                 public boolean supportsDefaultValue() { return true; }
             };
 
@@ -81,7 +81,7 @@ public class ChartNode extends AbstractNode implements PropertyChangeListener, E
             Property fontColor = new PropertySupport.Reflection(chartProperties, Color.class, "getFontColor", "setFontColor") {
                 public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
                 public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(DefaultTheme.FONT_COLOR); }
+                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(ChartProperties.FONT_COLOR); }
                 public boolean supportsDefaultValue() { return true; }
             };
 
@@ -94,7 +94,7 @@ public class ChartNode extends AbstractNode implements PropertyChangeListener, E
             Property axisColor = new PropertySupport.Reflection(chartProperties, Color.class, "getAxisColor", "setAxisColor") {
                 public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
                 public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(DefaultTheme.AXIS_COLOR); }
+                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(ChartProperties.AXIS_COLOR); }
                 public boolean supportsDefaultValue() { return true; }
             };
 
@@ -103,20 +103,30 @@ public class ChartNode extends AbstractNode implements PropertyChangeListener, E
             PropertySupport.Reflection axisStroke = new PropertySupport.Reflection(chartProperties, Stroke.class, "getAxisStroke", "setAxisStroke") {
                 public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
                 public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(StrokeGenerator.DEFAULT_STROKE); }
+                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(StrokeGenerator.getStroke(ChartProperties.AXIS_STROKE_INDEX)); }
                 public boolean supportsDefaultValue() { return true; }
             };
             axisStroke.setPropertyEditorClass(StrokePropertyEditor.class);
 
+            // Logarithmic Flag
+            /*@SuppressWarnings(value = "unchecked")
+            Property logarithmicFlag = new PropertySupport.Reflection(chartProperties, boolean.class, "getAxisLogarithmicFlag", "setAxisLogarithmicFlag") {
+                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
+                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
+                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(ChartProperties.AXIS_LOGARITHMIC_FLAG); }
+                public boolean supportsDefaultValue() { return true; }
+            };*/
+
             axisColor.setName("Axis Color");
             axisStroke.setName("Axis Style");
+            //logarithmicFlag.setName("Logarithmic Axis");
 
             // Bar Color
             @SuppressWarnings(value = "unchecked")
             Property barColor = new PropertySupport.Reflection(chartProperties, Color.class, "getBarColor", "setBarColor") {
                 public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
                 public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(DefaultTheme.AXIS_COLOR); }
+                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(ChartProperties.BAR_COLOR); }
                 public boolean supportsDefaultValue() { return true; }
             };
 
@@ -125,7 +135,7 @@ public class ChartNode extends AbstractNode implements PropertyChangeListener, E
             PropertySupport.Reflection barStroke = new PropertySupport.Reflection(chartProperties, Stroke.class, "getBarStroke", "setBarStroke") {
                 public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
                 public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(StrokeGenerator.DEFAULT_STROKE); }
+                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(StrokeGenerator.getStroke(ChartProperties.BAR_STROKE_INDEX)); }
                 public boolean supportsDefaultValue() { return true; }
             };
             barStroke.setPropertyEditorClass(StrokePropertyEditor.class);
@@ -135,7 +145,7 @@ public class ChartNode extends AbstractNode implements PropertyChangeListener, E
             Property barVisibility = new PropertySupport.Reflection(chartProperties, boolean.class, "getBarVisibility", "setBarVisibility") {
                 public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
                 public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(DefaultTheme.BAR_VISIBILITY); }
+                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(ChartProperties.BAR_VISIBILITY); }
                 public boolean supportsDefaultValue() { return true; }
             };
 
@@ -144,7 +154,7 @@ public class ChartNode extends AbstractNode implements PropertyChangeListener, E
             Property barUpColor = new PropertySupport.Reflection(chartProperties, Color.class, "getBarUpColor", "setBarUpColor") {
                 public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
                 public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(DefaultTheme.BAR_UP_COLOR); }
+                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(ChartProperties.BAR_UP_COLOR); }
                 public boolean supportsDefaultValue() { return true; }
             };
 
@@ -153,7 +163,7 @@ public class ChartNode extends AbstractNode implements PropertyChangeListener, E
             Property barUpVisibility = new PropertySupport.Reflection(chartProperties, boolean.class, "getBarUpVisibility", "setBarUpVisibility") {
                 public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
                 public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(DefaultTheme.BAR_UP_VISIBILITY); }
+                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(ChartProperties.BAR_UP_VISIBILITY); }
                 public boolean supportsDefaultValue() { return true; }
             };
 
@@ -162,7 +172,7 @@ public class ChartNode extends AbstractNode implements PropertyChangeListener, E
             Property barDownColor = new PropertySupport.Reflection(chartProperties, Color.class, "getBarDownColor", "setBarDownColor") {
                 public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
                 public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(DefaultTheme.BAR_DOWN_COLOR); }
+                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(ChartProperties.BAR_DOWN_COLOR); }
                 public boolean supportsDefaultValue() { return true; }
             };
 
@@ -171,7 +181,7 @@ public class ChartNode extends AbstractNode implements PropertyChangeListener, E
             Property barDownVisibility = new PropertySupport.Reflection(chartProperties, boolean.class, "getBarDownVisibility", "setBarDownVisibility") {
                 public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
                 public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(DefaultTheme.BAR_DOWN_VISIBILITY); }
+                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(ChartProperties.BAR_DOWN_VISIBILITY); }
                 public boolean supportsDefaultValue() { return true; }
             };
 
@@ -188,16 +198,7 @@ public class ChartNode extends AbstractNode implements PropertyChangeListener, E
             Property horizontalColor = new PropertySupport.Reflection(chartProperties, Color.class, "getGridHorizontalColor", "setGridHorizontalColor") {
                 public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
                 public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(DefaultTheme.HORIZONTAL_GRID_COLOR); }
-                public boolean supportsDefaultValue() { return true; }
-            };
-
-            // Vertical Grid Color
-            @SuppressWarnings(value = "unchecked")
-            Property verticalColor = new PropertySupport.Reflection(chartProperties, Color.class, "getGridVerticalColor", "setGridVerticalColor") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(DefaultTheme.VERTICAL_GRID_COLOR); }
+                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(ChartProperties.GRID_HORIZONTAL_COLOR); }
                 public boolean supportsDefaultValue() { return true; }
             };
 
@@ -206,36 +207,45 @@ public class ChartNode extends AbstractNode implements PropertyChangeListener, E
             PropertySupport.Reflection horizontalStroke = new PropertySupport.Reflection(chartProperties, Stroke.class, "getGridHorizontalStroke", "setGridHorizontalStroke") {
                 public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
                 public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(StrokeGenerator.DEFAULT_STROKE); }
+                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(StrokeGenerator.getStroke(ChartProperties.GRID_HORIZONTAL_STROKE_INDEX)); }
                 public boolean supportsDefaultValue() { return true; }
             };
             horizontalStroke.setPropertyEditorClass(StrokePropertyEditor.class);
+            
+            // Horizontal Grid Visibility
+            @SuppressWarnings(value = "unchecked")
+            Property horizontalVisibility = new PropertySupport.Reflection(chartProperties, boolean.class, "getGridHorizontalVisibility", "setGridHorizontalVisibility") {
+                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
+                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
+                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(ChartProperties.GRID_HORIZONTAL_VISIBILITY); }
+                public boolean supportsDefaultValue() { return true; }
+            };
+
+            // Vertical Grid Color
+            @SuppressWarnings(value = "unchecked")
+            Property verticalColor = new PropertySupport.Reflection(chartProperties, Color.class, "getGridVerticalColor", "setGridVerticalColor") {
+                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
+                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
+                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(ChartProperties.GRID_VERTICAL_COLOR); }
+                public boolean supportsDefaultValue() { return true; }
+            };
 
             // Vertical Grid Stroke
             @SuppressWarnings(value = "unchecked")
             PropertySupport.Reflection verticalStroke = new PropertySupport.Reflection(chartProperties, Stroke.class, "getGridVerticalStroke", "setGridVerticalStroke") {
                 public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
                 public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(StrokeGenerator.DEFAULT_STROKE); }
+                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(StrokeGenerator.getStroke(ChartProperties.GRID_VERTICAL_STROKE_INDEX)); }
                 public boolean supportsDefaultValue() { return true; }
             };
             verticalStroke.setPropertyEditorClass(StrokePropertyEditor.class);
-
-            // Horizontal Grid Visibility
-            @SuppressWarnings(value = "unchecked")
-            Property horizontalVisibility = new PropertySupport.Reflection(chartProperties, boolean.class, "getGridHorizontalVisibility", "setGridHorizontalVisibility") {
-                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
-                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(DefaultTheme.HORIZONTAL_GRID_VISIBILITY); }
-                public boolean supportsDefaultValue() { return true; }
-            };
 
             // Vertical Grid Visibility
             @SuppressWarnings(value = "unchecked")
             Property verticalVisibility = new PropertySupport.Reflection(chartProperties, boolean.class, "getGridVerticalVisibility", "setGridVerticalVisibility") {
                 public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
                 public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
-                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(DefaultTheme.VERTICAL_GRID_VISIBILITY); }
+                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(ChartProperties.GRID_VERTICAL_VISIBILITY); }
                 public boolean supportsDefaultValue() { return true; }
             };
 
@@ -252,6 +262,7 @@ public class ChartNode extends AbstractNode implements PropertyChangeListener, E
 
             axis.put(axisColor);
             axis.put(axisStroke);
+            //axis.put(logarithmicFlag);
 
             data.put(barColor);
             data.put(barStroke);
@@ -268,7 +279,7 @@ public class ChartNode extends AbstractNode implements PropertyChangeListener, E
             grid.put(horizontalVisibility);
             grid.put(verticalVisibility);
         } catch (Exception e) {
-            System.out.println(e.toString());
+            e.printStackTrace();
         }
 
         sheet.put(set);

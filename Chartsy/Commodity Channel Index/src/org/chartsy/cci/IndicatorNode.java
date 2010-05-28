@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.lang.reflect.InvocationTargetException;
-import org.chartsy.main.managers.LoggerManager;
+import org.chartsy.main.utils.AlphaPropertyEditor;
 import org.chartsy.main.utils.StrokeGenerator;
 import org.chartsy.main.utils.StrokePropertyEditor;
 import org.openide.nodes.AbstractNode;
@@ -25,7 +25,7 @@ import org.openide.util.lookup.Lookups;
  */
 public class IndicatorNode extends AbstractNode implements PropertyChangeListener, Externalizable {
 
-    private static final long serialVersionUID = 101L;
+    private static final long serialVersionUID = 2L;
 
     public IndicatorNode() {
         super(Children.LEAF);
@@ -102,8 +102,73 @@ public class IndicatorNode extends AbstractNode implements PropertyChangeListene
             stroke.setPropertyEditorClass(StrokePropertyEditor.class);
             stroke.setName("Line Style");
             set.put(stroke);
+
+            // Inside Color
+            @SuppressWarnings(value = "unchecked")
+            PropertySupport.Reflection insideColor = new PropertySupport.Reflection(indicatorProperties, Color.class, "getInsideColor", "setInsideColor") {
+                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
+                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
+                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(IndicatorProperties.INSIDE_COLOR); }
+                public boolean supportsDefaultValue() { return true; }
+            };
+            insideColor.setName("Inside Color");
+            set.put(insideColor);
+
+            // Inside Alpha
+            @SuppressWarnings(value = "unchecked")
+            PropertySupport.Reflection insideAlpha = new PropertySupport.Reflection(indicatorProperties, int.class, "getInsideAlpha", "setInsideAlpha") {
+                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
+                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
+                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(IndicatorProperties.INSIDE_ALPHA); }
+                public boolean supportsDefaultValue() { return true; }
+            };
+            insideAlpha.setPropertyEditorClass(AlphaPropertyEditor.class);
+            insideAlpha.setName("Inside Opacity");
+            set.put(insideAlpha);
+
+            // Inside Visibility
+            @SuppressWarnings(value = "unchecked")
+            PropertySupport.Reflection insideVisibility = new PropertySupport.Reflection(indicatorProperties, boolean.class, "getInsideVisibility", "setInsideVisibility") {
+                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
+                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
+                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(IndicatorProperties.INSIDE_VISIBILITY); }
+                public boolean supportsDefaultValue() { return true; }
+            };
+            insideVisibility.setName("Inside Visibility");
+            set.put(insideVisibility);
+
+            @SuppressWarnings(value = "unchecked")
+            Property zeroLineColor = new PropertySupport.Reflection(indicatorProperties, Color.class, "getZeroLineColor", "setZeroLineColor") {
+                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
+                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
+                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(IndicatorProperties.ZERO_LINE_COLOR); }
+                public boolean supportsDefaultValue() { return true; }
+            };
+            zeroLineColor.setName("Zero Line Color");
+            set.put(zeroLineColor);
+
+            @SuppressWarnings(value = "unchecked")
+            PropertySupport.Reflection zeroLineStroke = new PropertySupport.Reflection(indicatorProperties, Stroke.class, "getZeroLineStroke", "setZeroLineStroke") {
+                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
+                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
+                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(StrokeGenerator.getStroke(IndicatorProperties.ZERO_LINE_STROKE)); }
+                public boolean supportsDefaultValue() { return true; }
+            };
+            zeroLineStroke.setPropertyEditorClass(StrokePropertyEditor.class);
+            zeroLineStroke.setName("Zero Line Style");
+            set.put(zeroLineStroke);
+
+            @SuppressWarnings(value = "unchecked")
+            Property zeroLineVisibility = new PropertySupport.Reflection(indicatorProperties, boolean.class, "getZeroLineVisibility", "setZeroLineVisibility") {
+                public Object getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { return super.getValue(); }
+                public void setValue(Object obj) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException { super.setValue(obj); }
+                public void restoreDefaultValue() throws IllegalAccessException, InvocationTargetException { super.setValue(IndicatorProperties.ZERO_LINE_VISIBILITY); }
+                public boolean supportsDefaultValue() { return true; }
+            };
+            zeroLineVisibility.setName("Zero Line Visibility");
+            set.put(zeroLineVisibility);
         } catch (Exception e) {
-            LoggerManager.getDefault().log(e.getMessage(), e);
+            e.printStackTrace();
         }
 
         sheet.put(set);
